@@ -2,6 +2,9 @@ const fs = require('graceful-fs');
 const util = require('util');
 const es = require('event-stream');
 
+const PATH_DELIM = "/";
+const ROW_DELIM = "\n";
+
 class PictorWorker {
 
     constructor() {
@@ -17,7 +20,6 @@ class PictorWorker {
     }
 
     clearData() {
-
         this.result = {
             startTime: Date.now(),
             barcodeMap: {},
@@ -70,6 +72,34 @@ class PictorWorker {
             this.log(PictorWorker.getInstance().result);
             resolve();
         });
+    }
+
+    writeToGeneDatasetFile(row, basePath, geneName, datasetName, fileName, outDelim) {
+        const worker = PictorWorker.getInstance();
+        const outPath = worker.getOutPath(worker, basePath, geneName, datasetName, fileName, outDelim);
+
+        worker.os = worker.os || {};
+        worker.os[geneName] = worker.os[geneName] || {};
+        worker.os[geneName][datasetName] = worker.os[geneName][datasetName] || {};
+
+        if(!worker.os[geneName][datasetName][fileName]) {
+            worker.os[geneName][datasetName][fileName] =
+                fs.createWriteStream(outPath, {flags:'a'});
+        }
+
+        worker.os[geneName][datasetName][fileName].write(row.join(outDelim) + ROW_DELIM);
+    }
+
+    getOutPath(worker, basePath, geneName, datasetName, fileName, outDelim) {
+        let pathElements = [basePath, geneName, datasetName, fileName];
+        let output = pathElements.join(PATH_DELIM) + (outDelim === "," ? ".csv" : ".txt");
+
+        let test = pathElements.join('').match(/[^-A-Za-z0-9.]/g);
+        if(test && test.length) {
+            worker.log('!!! Suspicious path detected: ' + output);
+        }
+
+        return output;
     }
 
     streamRead(streamName, inPath, streamFunc) {
