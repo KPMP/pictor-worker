@@ -81,6 +81,10 @@ class PictorWorker {
                     return;
                 }
 
+                if(!gene || gene.length === 0) {
+                    return;
+                }
+
                 let row = [
                     worker.result.readCountHeader[i], //cellname
                     gene, //gene
@@ -92,17 +96,19 @@ class PictorWorker {
                 outputRows.push(row);
             });
 
-            worker.writeToGeneDatasetFile(
-                outputRows,
-                outPath,
-                gene,
-                datasetName,
-                VIOLIN_PLOT_FILENAME,
-                outDelim,
-                VIOLIN_PLOT_HEADER
-            );
+            if(gene && gene.length > 0) {
+                worker.writeToGeneDatasetFile(
+                    outputRows,
+                    outPath,
+                    gene,
+                    datasetName,
+                    VIOLIN_PLOT_FILENAME,
+                    outDelim,
+                    VIOLIN_PLOT_HEADER
+                );
 
-            worker.result.readCountRowCt++;
+                worker.result.readCountRowCt++;
+            }
         });
     }
 
@@ -117,11 +123,15 @@ class PictorWorker {
             }
 
             shell.mkdir('-p', outPath);
-            const outputPathElements = [outPath, datasetName + "_" + LEGEND_FILENAME];
-            const os = fs.createWriteStream(
-                outputPathElements.join(PATH_DELIM) + (outDelim === "," ? ".csv" : ".txt")
-                , {flags:'a'});
+            const outputPathElements = [outPath, datasetName + "_" + LEGEND_FILENAME],
+                fullOuthPath = outputPathElements.join(PATH_DELIM) + (outDelim === "," ? ".csv" : ".txt");
 
+            if(fs.existsSync(fullOuthPath)) {
+                worker.debug("--- Deleting existing output file: " + fullOuthPath);
+                shell.rm('-f', fullOuthPath);
+            }
+
+            const os = fs.createWriteStream(fullOuthPath, {flags:'a'});
             os.write(LEGEND_HEADER + ROW_DELIM);
 
             _.forEach(Object.keys(worker.result.clusterLegend), (cluster) => {
@@ -160,6 +170,12 @@ class PictorWorker {
         if(!worker.os[geneName][datasetName][fileName]) {
             const outPathElements = outPath.split(PATH_DELIM);
             shell.mkdir('-p', outPathElements.slice(0, outPathElements.length - 1).join(PATH_DELIM));
+
+            if(fs.existsSync(outPath)) {
+                worker.debug("--- Deleting existing output file: " + outPath);
+                shell.rm('-f', outPath);
+            }
+
             worker.os[geneName][datasetName][fileName] = fs.createWriteStream(outPath, {flags:'a'});
             worker.os[geneName][datasetName][fileName].write(header + ROW_DELIM);
         }
