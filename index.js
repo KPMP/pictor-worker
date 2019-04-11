@@ -80,4 +80,8 @@ worker
         datasetNameInput,
         dstOutputPath,
         delimiterOutput))
-    .then(worker.logResults());
+    .then(worker.logResults())
+    .catch((err) => {
+        worker.log(err);
+        process.exit(2);
+    });

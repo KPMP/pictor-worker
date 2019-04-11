@@ -9,6 +9,7 @@
   "author": "Ross Smith",
   "license": "ISC",
   "dependencies": {
+    "event-stream": "^4.0.1",
     "graceful-fs": "4.1.15",
     "lodash": "4.17.11"
   }
