@@ -1,3 +1,6 @@
+const fs = require('graceful-fs');
+const util = require('util');
+
 class PictorWorker {
 
     constructor() {
@@ -13,7 +16,7 @@ class PictorWorker {
     }
 
     clearData() {
-        this.result = { cells: {}, genes: {} };
+        this.result = { barcodeMap: {}, clusterLegend: {} };
         return this;
     }
 
