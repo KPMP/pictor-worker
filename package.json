@@ -1,0 +1,11 @@
+{
+  "name": "pictor-worker",
+  "version": "1.0.0",
+  "description": "Containerized worker scripts to transform data for consumption by kpmp/pictor-web",
+  "main": "run.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ross Smith",
+  "license": "ISC"
+}
