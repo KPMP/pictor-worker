@@ -1,9 +1,12 @@
 const fs = require('graceful-fs');
 const util = require('util');
 const es = require('event-stream');
+const _ = require('lodash');
 
 const PATH_DELIM = "/";
 const ROW_DELIM = "\n";
+const VIOLIN_PLOT_FILENAME = "violinPlot";
+const VIOLIN_PLOT_HEADER = "cellname,gene,readcount,cluster";
 
 class PictorWorker {
 
@@ -24,7 +27,9 @@ class PictorWorker {
             startTime: Date.now(),
             barcodeMap: {},
             clusterLegend: {},
-            barcodeCt: 0
+            readCountHeader: [],
+            barcodeCt: 0,
+            readCountRowCt: 0
         };
 
         return this;
@@ -50,11 +55,44 @@ class PictorWorker {
     }
 
     processReadCountTable(datasetName, inPath, inDelim, outPath, outDelim) {
-        return new Promise((resolve, reject) => {
-            this.log('... processReadCountTable',
-                datasetName, inPath,
-                "'" + inDelim + "'", outPath, "'" + outDelim + "'");
-            resolve();
+        const worker = PictorWorker.getInstance();
+
+        return worker.streamRead("processReadCountTable", inPath, (line) => {
+            const inputRow = line.split(inDelim), // this will be factors of 10^4, 10^5 long
+                outputRows = [];
+            let gene = null;
+
+            //TODO If we have no header, process that first
+            if(!worker.result.readCountHeader) {
+                worker.result.readCountHeader = inputRow;
+                return;
+            }
+
+            _.forEach(inputRow, (col, i) => {
+                if(i === 0) {
+                    gene = col;
+                    return;
+                }
+
+                outputRows.push([
+                    worker.result.readCountHeader[i], //cellname
+                    gene, //gene
+                    worker.result.barcodeMap[worker.result.readCountHeader[i]], // cluster
+                    col //readcount
+                ]);
+            });
+
+            worker.writeToGeneDatasetFile(
+                rows,
+                outPath,
+                gene,
+                datasetName,
+                VIOLIN_PLOT_FILENAME,
+                outDelim,
+                VIOLIN_PLOT_HEADER
+            );
+
+            worker.result.readCountRowCt++;
         });
     }
 
@@ -74,7 +112,7 @@ class PictorWorker {
         });
     }
 
-    writeToGeneDatasetFile(row, basePath, geneName, datasetName, fileName, outDelim) {
+    writeToGeneDatasetFile(rows, basePath, geneName, datasetName, fileName, outDelim, header) {
         const worker = PictorWorker.getInstance();
         const outPath = worker.getOutPath(worker, basePath, geneName, datasetName, fileName, outDelim);
 
@@ -83,15 +121,18 @@ class PictorWorker {
         worker.os[geneName][datasetName] = worker.os[geneName][datasetName] || {};
 
         if(!worker.os[geneName][datasetName][fileName]) {
-            worker.os[geneName][datasetName][fileName] =
-                fs.createWriteStream(outPath, {flags:'a'});
+            worker.os[geneName][datasetName][fileName] = fs.createWriteStream(outPath, {flags:'a'});
+            worker.os[geneName][datasetName][fileName].write(header + ROW_DELIM);
         }
 
-        worker.os[geneName][datasetName][fileName].write(row.join(outDelim) + ROW_DELIM);
+        worker.os[geneName][datasetName][fileName].write(
+            rows.map((row) => row.join(outDelim))
+                .join(ROW_DELIM) + ROW_DELIM
+        );
     }
 
     getOutPath(worker, basePath, geneName, datasetName, fileName, outDelim) {
-        let pathElements = [basePath, geneName, datasetName, fileName];
+        let pathElements = [basePath, geneName, datasetName + "_" + fileName];
         let output = pathElements.join(PATH_DELIM) + (outDelim === "," ? ".csv" : ".txt");
 
         let test = pathElements.join('').match(/[^-A-Za-z0-9.]/g);
