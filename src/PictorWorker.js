@@ -21,7 +21,8 @@ class PictorWorker {
         this.result = {
             startTime: Date.now(),
             barcodeMap: {},
-            clusterLegend: {}
+            clusterLegend: {},
+            barcodeCt: 0
         };
 
         return this;
@@ -30,9 +31,19 @@ class PictorWorker {
     parseBarcodeToCellMap(inPath, inDelim) {
         const worker = PictorWorker.getInstance();
 
-        return this.streamRead(
-            "parseBarcodeToCellMap", inPath, (line) => {
-                worker.log(line);
+        return worker.streamRead("parseBarcodeToCellMap", inPath, (line) => {
+            const row = line.split(inDelim);
+
+            if (row && row.length === 2) {
+                worker.result.barcodeMap[row[0]] = row[1];
+
+                worker.result.clusterLegend[row[1]] =
+                    worker.result.clusterLegend[row[1]] ||
+                    0;
+
+                worker.result.clusterLegend[row[1]]++;
+                worker.result.barcodeCt++;
+            }
         });
     }
 
@@ -53,15 +64,16 @@ class PictorWorker {
         });
     }
 
-    logResults() {
+    logResult() {
         return new Promise((resolve, reject) => {
-            this.log('... logResults');
+            this.log('... logResult');
+            this.log(PictorWorker.getInstance().result);
             resolve();
         });
     }
 
     streamRead(streamName, inPath, streamFunc) {
-        const worker = this;
+        const worker = PictorWorker.getInstance();
 
         return new Promise((resolve, reject) => {
             worker.log('... ' + streamName, inPath);

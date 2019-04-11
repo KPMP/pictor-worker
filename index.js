@@ -69,18 +69,20 @@ if (!datasetNameInput ||
 
 worker
     .clearData()
-    .parseBarcodeToCellMap(barcodeToCellMapInputPath, delimiterInput)
-    .then(worker.processReadCountTable(
+    .parseBarcodeToCellMap(
+        barcodeToCellMapInputPath,
+        delimiterInput)
+    .then(() => worker.processReadCountTable(
         datasetNameInput,
         readCountTableInputPath,
         delimiterInput,
         dstOutputPath,
         delimiterOutput))
-    .then(worker.writeLegend(
+    .then(() => worker.writeLegend(
         datasetNameInput,
         dstOutputPath,
         delimiterOutput))
-    .then(worker.logResults())
+    .then(() => worker.logResult())
     .catch((err) => {
         worker.log(err);
         process.exit(2);
