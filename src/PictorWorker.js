@@ -63,7 +63,8 @@ class PictorWorker {
         const worker = PictorWorker.getInstance();
         return worker.streamRead("processReadCountTable", inPath, (line) => {
             const inputCols = line.split(inDelim), // this will be factors of 10^4, 10^5 long
-                outputRows = [];
+                outputRows = [],
+                sanitize = (str) => str.replace(/["']/g, '');
             let gene = null;
 
             //worker.debug("+++ " + inputCols.length + " columns found");
@@ -76,8 +77,8 @@ class PictorWorker {
 
             _.forEach(inputCols, (col, i) => {
                 if(i === 0) {
-                    gene = col;
-                    worker.debug("... Processing gene " + gene);
+                    gene = sanitize(col);
+                    worker.log("... Processing gene " + gene);
                     return;
                 }
 
@@ -86,13 +87,13 @@ class PictorWorker {
                 }
 
                 let row = [
-                    worker.result.readCountHeader[i], //cellname
+                    sanitize(worker.result.readCountHeader[i]), //cellname
                     gene, //gene
-                    worker.result.barcodeMap[worker.result.readCountHeader[i]], // cluster
-                    col //readcount
+                    sanitize(worker.result.barcodeMap[worker.result.readCountHeader[i]]), // cluster
+                    parseFloat(sanitize(col)) //readcount
                 ];
 
-                //worker.debug(row);
+                worker.debug(row);
                 outputRows.push(row);
             });
 
