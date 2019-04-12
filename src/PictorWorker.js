@@ -10,7 +10,7 @@ const LEGEND_HEADER = "datasetcluster,cellct,mastercluster";
 const VIOLIN_PLOT_FILENAME = "violinPlot";
 const VIOLIN_PLOT_HEADER = "cellname,gene,readcount,cluster";
 
-const DEBUGGING = false;
+const DEBUGGING = true;
 const WRITE_FILES = true;
 const WRITE_GENE_FILES = true;
 
@@ -64,7 +64,7 @@ class PictorWorker {
         return worker.streamRead("processReadCountTable", inPath, (line) => {
             const inputCols = line.split(inDelim), // this will be factors of 10^4, 10^5 long
                 outputRows = [],
-                sanitize = (str) => str.replace(/["']/g, '');
+                sanitize = (str) => str ? str.replace(/["']/g, '') : false;
             let gene = null;
 
             //worker.debug("+++ " + inputCols.length + " columns found");
@@ -78,11 +78,11 @@ class PictorWorker {
             _.forEach(inputCols, (col, i) => {
                 if(i === 0) {
                     gene = sanitize(col);
-                    worker.log("... Processing gene " + gene);
+                    worker.debug("... Processing gene " + gene);
                     return;
                 }
 
-                if(!gene || gene.length === 0) {
+                if(!gene || !sanitize(worker.result.readCountHeader[i])) {
                     return;
                 }
 
@@ -93,7 +93,7 @@ class PictorWorker {
                     parseFloat(sanitize(col)) //readcount
                 ];
 
-                worker.debug(row);
+                //worker.debug(row);
                 outputRows.push(row);
             });
 
@@ -134,6 +134,8 @@ class PictorWorker {
 
             const os = fs.createWriteStream(fullOuthPath, {flags:'a'});
             os.write(LEGEND_HEADER + ROW_DELIM);
+
+            //TODO sort the legend by cluster before writing out
 
             _.forEach(Object.keys(worker.result.clusterLegend), (cluster) => {
                 //We write a file with only this data; the master column must be added manually post-hoc
