@@ -8,7 +8,7 @@ const ROW_DELIM = "\n";
 const LEGEND_FILENAME = "Legend";
 const LEGEND_HEADER = "datasetcluster,cellct,mastercluster";
 const VIOLIN_PLOT_FILENAME = "violinPlot";
-const VIOLIN_PLOT_HEADER = "cellname,gene,readcount,cluster";
+const VIOLIN_PLOT_HEADER = "cellname,gene,cluster,readcount";
 
 const DEBUGGING = true;
 const WRITE_FILES = true;
