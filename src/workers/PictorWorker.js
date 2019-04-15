@@ -1,7 +1,7 @@
 const _ = require('lodash');
-const env = require('./util/env');
-const log = require('./util/log');
-const files = require('./util/files');
+const env = require('../util/env');
+const log = require('../util/log');
+const files = require('../util/files');
 
 class PictorWorker {
 
@@ -79,7 +79,7 @@ class PictorWorker {
                 }
 
                 let cell = worker.sanitize(worker.result.readCountHeader[i]),
-                    cluster = worker.sanitize(worker.result.barcodeMap[worker.result.readCountHeader[i]]),
+                    cluster = worker.sanitize(worker.result.barcodeMap[cell]),
                     readCount = parseFloat(worker.sanitize(col)),
                     row = [ cell, gene, cluster, readCount ];
 

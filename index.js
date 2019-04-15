@@ -1,6 +1,6 @@
 const env = require('./src/util/env');
 const log = require('./src/util/log');
-const PictorWorker = require('./src/PictorWorker').PictorWorker;
+const PictorWorker = require('./src/workers/PictorWorker').PictorWorker;
 
 const HELP_MSG = `
 ERROR: Missing required arguments or .env configuration.
@@ -56,10 +56,10 @@ worker
     .clearData()
     .parseBarcodeToCellMap(
         barcodeToCellMapInputPath)
-    // .then(() => worker.processReadCountTable(
-    //     datasetNameInput,
-    //     readCountTableInputPath,
-    //     dstOutputPath))
+    .then(() => worker.processReadCountTable(
+        datasetNameInput,
+        readCountTableInputPath,
+        dstOutputPath))
     .then(() => worker.writeLegend(
         datasetNameInput,
         dstOutputPath))
