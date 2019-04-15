@@ -2,6 +2,7 @@ const _ = require('lodash');
 const env = require('../util/env');
 const log = require('../util/log');
 const files = require('../util/files');
+const BinWorker = require('./BinWorker').BinWorker;
 
 class PictorWorker {
 
@@ -57,7 +58,7 @@ class PictorWorker {
                 outputRows = [];
             let gene = null;
 
-            //log.debug("+++ " + inputCols.length + " columns found");
+            log.debug(inputCols.length + " columns found");
 
             if(!worker.result.readCountHeader.length) {
                 worker.result.readCountHeader = inputCols;
@@ -96,13 +97,21 @@ class PictorWorker {
                     outputRows,
                     outPath,
                     gene,
-                    datasetName,
-                    env.VIOLIN_PLOT_FILENAME,
-                    env.VIOLIN_PLOT_HEADER
+                    datasetName
                 );
 
                 worker.result.readCountRowCt++;
             }
+
+            BinWorker
+                .getInstance()
+                .writeViolinPlotBins(
+                    outputRows,
+                    outPath,
+                    gene,
+                    datasetName
+                );
+
         });
     }
 
@@ -115,7 +124,7 @@ class PictorWorker {
 
             files.getStreamWriter(outPath, (os) => {
                 let clusters = Object.keys(worker.result.clusterLegend);
-                clusters.sort((a, b) => { console.log(a, b); return parseInt(a) - parseInt(b)});
+                clusters.sort((a, b) => parseInt(a) - parseInt(b));
 
                 os.write(env.LEGEND_HEADER + env.ROW_DELIM);
 
@@ -130,25 +139,12 @@ class PictorWorker {
         });
     }
 
-    writeToGeneDatasetFile(rows, basePath, geneName, datasetName, fileName, header) {
-        const outPath = PictorWorker.getInstance().getGeneDatasetOutPath(basePath, geneName, datasetName, fileName);
+    writeToGeneDatasetFile(rows, basePath, geneName, datasetName) {
+        const outPath = files.getPath(basePath, geneName, datasetName, env.VIOLIN_PLOT_FILENAME);
         files.getStreamWriter(outPath, (os, isNew) => {
-            isNew && os.write(header + env.ROW_DELIM);
+            isNew && os.write(env.VIOLIN_PLOT_HEADER + env.ROW_DELIM);
             os.write(rows.map((row) => row.join(env.OUT_DELIM)).join(env.ROW_DELIM));
         });
-    }
-
-    getGeneDatasetOutPath(basePath, geneName, datasetName, fileSuffix) {
-        let fileName = datasetName + "_" + fileSuffix + (env.OUT_DELIM === "," ? ".csv" : ".txt"),
-            pathElements = [basePath, geneName[0], geneName, fileName],
-            output = pathElements.join(env.PATH_DELIM),
-            test = [geneName, fileName].join('').match(/[^-_.A-Za-z0-9]/g);
-
-        if(test && test.length) {
-            log.info('!!! Suspicious path detected: ' + output);
-        }
-
-        return output;
     }
 
     logResult() {

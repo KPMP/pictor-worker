@@ -14,3 +14,7 @@ module.exports.DATASET_NAME = process.env.DATASET_NAME || undefined;
 module.exports.DST_DIR = process.env.DST_DIR || undefined;
 module.exports.BARCODE_FILE = process.env.BARCODE_FILE || undefined;
 module.exports.DATA_FILE = process.env.DATA_FILE || undefined;
+module.exports.VIOLIN_BIN_FILENAME = process.env.VIOLIN_BIN_FILENAME || "violinPlotBins";
+module.exports.VIOLIN_BIN_HEADER = process.env.VIOLIN_BIN_HEADER || "cluster,";
+module.exports.VIOLIN_BIN_BANDWIDTH = parseFloat(process.env.VIOLIN_BIN_BANDWIDTH) || 0.25;
+module.exports.VIOLIN_BIN_PREFIX = process.env.VIOLIN_BIN_PREFIX || "readct-";

@@ -35,7 +35,7 @@ getStreamWriter = (outPath, writeFunc, appendMode = false) => {
     let isNew = false;
 
     if(!env.WRITE_FILES) {
-        log.info('!!! Skipping file write; WRITE_FILES = false');
+        log.info('!!! getStreamWriter: Skipping file write; WRITE_FILES = false');
         return;
     }
 
@@ -59,4 +59,17 @@ getStreamWriter = (outPath, writeFunc, appendMode = false) => {
     writeFunc(fileUtilState.outStreams[outPath], isNew);
 }
 
-module.exports = {streamRead, getStreamWriter};
+getPath = (basePath, geneName, datasetName, fileSuffix) => {
+    let fileName = datasetName + "_" + fileSuffix + (env.OUT_DELIM === "," ? ".csv" : ".txt"),
+        pathElements = [basePath, geneName[0], geneName, fileName],
+        output = pathElements.join(env.PATH_DELIM),
+        test = [geneName, fileName].join('').match(/[^-_.A-Za-z0-9]/g);
+
+    if(test && test.length) {
+        log.info('!!! Suspicious path detected: ' + output);
+    }
+
+    return output;
+}
+
+module.exports = {streamRead, getStreamWriter, getPath};
