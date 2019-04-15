@@ -1,18 +1,7 @@
-const fs = require('graceful-fs');
-const es = require('event-stream');
 const _ = require('lodash');
-const shell = require('shelljs');
-
-const PATH_DELIM = "/";
-const ROW_DELIM = "\n";
-const LEGEND_FILENAME = "Legend";
-const LEGEND_HEADER = "datasetcluster,cellct,mastercluster";
-const VIOLIN_PLOT_FILENAME = "violinPlot";
-const VIOLIN_PLOT_HEADER = "cellname,gene,cluster,readcount";
-
-const DEBUGGING = true;
-const WRITE_FILES = true;
-const WRITE_GENE_FILES = true;
+const env = require('./util/env');
+const log = require('./util/log');
+const files = require('./util/files');
 
 class PictorWorker {
 
@@ -41,59 +30,64 @@ class PictorWorker {
         return this;
     }
 
-    parseBarcodeToCellMap(inPath, inDelim) {
-        const worker = PictorWorker.getInstance();
-        return worker.streamRead("parseBarcodeToCellMap", inPath, (line) => {
-            const row = line.split(inDelim);
+    parseBarcodeToCellMap(inPath) {
+        return files.streamRead("parseBarcodeToCellMap", inPath, (line) => {
+            const worker = PictorWorker.getInstance(),
+                row = line.split(env.IN_DELIM),
+                cell = worker.sanitize(row[0]),
+                cluster = worker.sanitize(row[1]);
 
             if (row && row.length === 2) {
-                worker.result.barcodeMap[row[0]] = row[1];
+                worker.result.barcodeMap[cell] = cluster;
 
-                worker.result.clusterLegend[row[1]] =
-                    worker.result.clusterLegend[row[1]] ||
+                worker.result.clusterLegend[cluster] =
+                    worker.result.clusterLegend[cluster] ||
                     0;
 
-                worker.result.clusterLegend[row[1]]++;
+                worker.result.clusterLegend[cluster]++;
                 worker.result.barcodeCt++;
             }
         });
     }
 
-    processReadCountTable(datasetName, inPath, inDelim, outPath, outDelim) {
-        const worker = PictorWorker.getInstance();
-        return worker.streamRead("processReadCountTable", inPath, (line) => {
-            const inputCols = line.split(inDelim), // this will be factors of 10^4, 10^5 long
-                outputRows = [],
-                sanitize = (str) => str ? str.replace(/["']/g, '') : false;
+    processReadCountTable(datasetName, inPath, outPath) {
+        return files.streamRead("processReadCountTable", inPath, (line) => {
+            const worker = PictorWorker.getInstance(),
+                inputCols = line.split(env.IN_DELIM), // this will be factors of 10^4, 10^5 long
+                outputRows = [];
             let gene = null;
 
-            //worker.debug("+++ " + inputCols.length + " columns found");
+            //log.debug("+++ " + inputCols.length + " columns found");
 
             if(!worker.result.readCountHeader.length) {
                 worker.result.readCountHeader = inputCols;
-                //worker.debug("+++ Header found: " + JSON.stringify(inputCols));
+                //log.debug("+++ Header found: " + JSON.stringify(inputCols));
                 return;
             }
 
             _.forEach(inputCols, (col, i) => {
                 if(i === 0) {
-                    gene = sanitize(col);
-                    worker.debug("... Processing gene " + gene);
+                    gene = worker.sanitize(col);
+                    if (gene) {
+                        log.info("... Processing gene " + gene);
+                    }
                     return;
                 }
 
-                if(!gene || !sanitize(worker.result.readCountHeader[i])) {
+                if(!gene || !worker.sanitize(worker.result.readCountHeader[i])) {
                     return;
                 }
 
-                let row = [
-                    sanitize(worker.result.readCountHeader[i]), //cellname
-                    gene, //gene
-                    sanitize(worker.result.barcodeMap[worker.result.readCountHeader[i]]), // cluster
-                    parseFloat(sanitize(col)) //readcount
-                ];
+                let cell = worker.sanitize(worker.result.readCountHeader[i]),
+                    cluster = worker.sanitize(worker.result.barcodeMap[worker.result.readCountHeader[i]]),
+                    readCount = parseFloat(worker.sanitize(col)),
+                    row = [ cell, gene, cluster, readCount ];
 
-                //worker.debug(row);
+                if(!cluster) {
+                    log.debug('!!! Error: No cluster found for gene/cell ' + gene + '/' + cell);
+                }
+
+                //log.debug(row);
                 outputRows.push(row);
             });
 
@@ -103,9 +97,8 @@ class PictorWorker {
                     outPath,
                     gene,
                     datasetName,
-                    VIOLIN_PLOT_FILENAME,
-                    outDelim,
-                    VIOLIN_PLOT_HEADER
+                    env.VIOLIN_PLOT_FILENAME,
+                    env.VIOLIN_PLOT_HEADER
                 );
 
                 worker.result.readCountRowCt++;
@@ -113,132 +106,64 @@ class PictorWorker {
         });
     }
 
-    writeLegend(datasetName, outPath, outDelim) {
-        const worker = PictorWorker.getInstance();
+    writeLegend(datasetName, outDir) {
         return new Promise((resolve, reject) => {
-            worker.debug('... writeLegend');
+            log.debug('... writeLegend');
 
-            if(!WRITE_FILES) {
-                worker.log('!!! Skipping file write; WRITE_FILES = false');
+            const worker = PictorWorker.getInstance(),
+                outPath = [outDir, datasetName + "_" + env.LEGEND_FILENAME].join(env.PATH_DELIM) + (env.OUT_DELIM === "," ? ".csv" : ".txt");
+
+            files.getStreamWriter(outPath, (os) => {
+                let clusters = Object.keys(worker.result.clusterLegend);
+                clusters.sort((a, b) => { console.log(a, b); return parseInt(a) - parseInt(b)});
+
+                os.write(env.LEGEND_HEADER + env.ROW_DELIM);
+
+                _.forEach(clusters, (cluster) => {
+                    os.write(datasetName + env.OUT_DELIM +
+                        cluster + env.OUT_DELIM +
+                        worker.result.clusterLegend[cluster] + env.OUT_DELIM + env.ROW_DELIM);
+                });
+
                 resolve();
-            }
-
-            shell.mkdir('-p', outPath);
-            const outputPathElements = [outPath, datasetName + "_" + LEGEND_FILENAME],
-                fullOuthPath = outputPathElements.join(PATH_DELIM) + (outDelim === "," ? ".csv" : ".txt");
-
-            if(fs.existsSync(fullOuthPath)) {
-                worker.debug("--- Deleting existing output file: " + fullOuthPath);
-                shell.rm('-f', fullOuthPath);
-            }
-
-            const os = fs.createWriteStream(fullOuthPath, {flags:'a'});
-            os.write(LEGEND_HEADER + ROW_DELIM);
-
-            //TODO sort the legend by cluster before writing out
-
-            _.forEach(Object.keys(worker.result.clusterLegend), (cluster) => {
-                //We write a file with only this data; the master column must be added manually post-hoc
-                os.write(cluster + outDelim + worker.result.clusterLegend[cluster] + outDelim + ROW_DELIM);
             });
-
-            resolve();
         });
     }
 
-    logResult() {
-        const worker = PictorWorker.getInstance();
-        return new Promise((resolve, reject) => {
-            worker.debug('... logResult');
-            worker.log('Barcode ct: ' + worker.result.barcodeCt);
-            worker.log('Read count row ct: ' + worker.result.readCountRowCt);
-            worker.log('Runtime: ' + ((Date.now() - this.result.startTime) / 1000) + "s");
-            resolve();
+    writeToGeneDatasetFile(rows, basePath, geneName, datasetName, fileName, header) {
+        const outPath = PictorWorker.getInstance().getGeneDatasetOutPath(basePath, geneName, datasetName, fileName);
+        files.getStreamWriter(outPath, (os, isNew) => {
+            isNew && os.write(header + env.ROW_DELIM);
+            os.write(rows.map((row) => row.join(env.OUT_DELIM)).join(env.ROW_DELIM));
         });
     }
 
-    writeToGeneDatasetFile(rows, basePath, geneName, datasetName, fileName, outDelim, header) {
-        const worker = PictorWorker.getInstance();
-        const outPath = worker.getOutPath(worker, basePath, geneName, datasetName, fileName, outDelim);
-
-        if(!WRITE_GENE_FILES) {
-            worker.log('!!! Skipping file write; WRITE_GENE_FILES = false');
-            return;
-        }
-
-        worker.os = worker.os || {};
-        worker.os[geneName] = worker.os[geneName] || {};
-        worker.os[geneName][datasetName] = worker.os[geneName][datasetName] || {};
-
-        if(!worker.os[geneName][datasetName][fileName]) {
-            const outPathElements = outPath.split(PATH_DELIM);
-            shell.mkdir('-p', outPathElements.slice(0, outPathElements.length - 1).join(PATH_DELIM));
-
-            if(fs.existsSync(outPath)) {
-                worker.debug("--- Deleting existing output file: " + outPath);
-                shell.rm('-f', outPath);
-            }
-
-            worker.os[geneName][datasetName][fileName] = fs.createWriteStream(outPath, {flags:'a'});
-            worker.os[geneName][datasetName][fileName].write(header + ROW_DELIM);
-        }
-
-        worker.os[geneName][datasetName][fileName].write(
-            rows.map((row) => row.join(outDelim))
-                .join(ROW_DELIM) + ROW_DELIM
-        );
-    }
-
-    getOutPath(worker, basePath, geneName, datasetName, fileSuffix, outDelim) {
-        let fileName = datasetName + "_" + fileSuffix + (outDelim === "," ? ".csv" : ".txt"),
+    getGeneDatasetOutPath(basePath, geneName, datasetName, fileSuffix) {
+        let fileName = datasetName + "_" + fileSuffix + (env.OUT_DELIM === "," ? ".csv" : ".txt"),
             pathElements = [basePath, geneName[0], geneName, fileName],
-            output = pathElements.join(PATH_DELIM),
+            output = pathElements.join(env.PATH_DELIM),
             test = [geneName, fileName].join('').match(/[^-_.A-Za-z0-9]/g);
 
         if(test && test.length) {
-            worker.log('!!! Suspicious path detected: ' + output);
+            log.info('!!! Suspicious path detected: ' + output);
         }
 
         return output;
     }
 
-    streamRead(streamName, inPath, streamFunc) {
+    logResult() {
         const worker = PictorWorker.getInstance();
         return new Promise((resolve, reject) => {
-            worker.debug('... ' + streamName, inPath);
-
-            if(!fs.existsSync(inPath)) {
-                reject("!!! streamRead error: No file found at ", inPath);
-                return;
-            }
-
-            let s = fs.createReadStream(inPath)
-                .pipe(es.split())
-                .pipe(es.mapSync((line) => {
-                    streamFunc(line);
-                })
-                .on('error', function(err){
-                    reject(err);
-                })
-                .on('end', function(){
-                    worker.debug('+++ ' + streamName + ' done');
-                    resolve();
-                }));
+            log.debug('... logResult');
+            log.info('Barcode ct: ' + worker.result.barcodeCt);
+            log.info('Read count row ct: ' + worker.result.readCountRowCt);
+            log.info('Runtime: ' + ((Date.now() - this.result.startTime) / 1000) + "s");
+            resolve();
         });
     }
 
-    log(msg) {
-        console.log(
-            ((Date.now() - this.result.startTime) / 1000) +
-            ": ", msg
-        );
-    }
-
-    debug(msg) {
-        DEBUGGING && console.log(
-            ((Date.now() - this.result.startTime) / 1000) +
-            ": ", msg
-        );
+    sanitize(str) {
+        return str ? str.replace(/["']/g, '') : false;
     }
 }
 
