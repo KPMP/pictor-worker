@@ -12,6 +12,8 @@ This script parses transcriptomic read count tables and cell barcodes into serva
 The parameters are stored in a .env file. Copy .env.example to .env and update it accordingly.
 You may also specify a .env file.
 
+WARNING: If no .env is found, defaults will be used silently as defined in src/util/env.js.
+
 Example:
 node index.js                              # Uses default .env in same directory
 node index.js --config=./some/other/.env   # Use a custom .env file
@@ -44,3 +46,5 @@ module.exports.VIOLIN_BIN_PREFIX = process.env.VIOLIN_BIN_PREFIX || "readct-";
 module.exports.WRITE_FILES = process.env.WRITE_FILES === "true";
 module.exports.DEBUGGING = process.env.DEBUGGING === "true";
 module.exports.PARSE_GENES = process.env.PARSE_GENES ? process.env.PARSE_GENES.split(',') : undefined;
+module.exports.BARCODE_FILE_CELL_NAME_IDX = parseInt(process.env.BARCODE_FILE_CELL_NAME_IDX) || 0;
+module.exports.BARCODE_FILE_CLUSTER_ID_IDX = parseInt(process.env.BARCODE_FILE_CLUSTER_ID_IDX) || 1;

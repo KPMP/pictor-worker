@@ -35,8 +35,8 @@ class ViolinPlotWorker {
         return files.streamRead("parseBarcodeToCellMap", inPath, (line) => {
             const worker = ViolinPlotWorker.getInstance(),
                 row = line.split(env.IN_DELIM),
-                cell = worker.sanitize(row[0]),
-                cluster = worker.sanitize(row[1]);
+                cell = worker.sanitize(row[env.BARCODE_FILE_CELL_NAME_IDX]),
+                cluster = worker.sanitize(row[env. BARCODE_FILE_CLUSTER_ID_IDX]);
 
             if (row && row.length === 2) {
                 worker.result.barcodeMap[cell] = cluster;
