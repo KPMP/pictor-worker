@@ -53,5 +53,5 @@ module.exports.VIOLIN_PLOT_JITTER_SEED = process.env.VIOLIN_PLOT_JITTER_SEED || 
 module.exports.VIOLIN_PLOT_JITTER_DIVISOR = parseFloat(process.env.VIOLIN_PLOT_JITTER_DIVISOR) || 200;
 module.exports.VIOLIN_PLOT_JITTER_OFFSET = parseFloat(process.env.VIOLIN_PLOT_JITTER_OFFSET) || 1;
 module.exports.LOG_DIR = process.env.LOG_DIR || "./log";
-module.exports.LOG_UNMATCHED_CELL_FILE = process.env.LOG_UNMATCHED_CELL_FILE || "unmatchedCells.txt";
-module.exports.LOG_UNMATCHED_CELL_HEADER = process.env.LOG_UNMATCHED_CELL_HEADER || "unmatched_cells";
+module.exports.LOG_UNMATCHED_BARCODE_FILE = process.env.LOG_UNMATCHED_BARCODE_FILE || "unmatchedBarcodes.txt";
+module.exports.LOG_UNMATCHED_BARCODE_HEADER = process.env.LOG_UNMATCHED_BARCODE_HEADER || "unmatched_barcode";

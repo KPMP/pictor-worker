@@ -29,7 +29,7 @@ class ViolinPlotWorker {
             readCountHeader: [],
             barcodeCt: 0,
             readCountRowCt: 0,
-            unmatchedCells: []
+            unmatchedBarcodes: []
         }
 
         return this;
@@ -89,9 +89,12 @@ class ViolinPlotWorker {
                     readCount = worker.jitter(parseFloat(worker.sanitize(col))),
                     row = [ cell, gene, cluster, readCount ];
 
-                if(!cluster && worker.result.unmatchedCells.indexOf(cell) === -1) {
-                    log.debug('!!! Error: No cluster found for gene/cell ' + gene + '/' + cell + '; skipping');
-                    worker.result.unmatchedCells.push(cell);
+                if(!cluster) {
+                    if (worker.result.unmatchedBarcodes.indexOf(cell) === -1) {
+                        log.debug('!!! Error: No cluster found for gene/cell ' + gene + '/' + cell + '; skipping');
+                        worker.result.unmatchedBarcodes.push(cell);
+                    }
+
                     return;
                 }
 
@@ -166,10 +169,11 @@ class ViolinPlotWorker {
             log.info('Barcode ct: ' + worker.result.barcodeCt);
             log.info('Read count row ct: ' + worker.result.readCountRowCt);
             log.info('Runtime: ' + ((Date.now() - this.result.startTime) / 1000) + "s");
+            log.info('Unmatched barcode ct: ' + this.result.unmatchedBarcodes.length);
 
-            files.getStreamWriter(env.LOG_DIR + env.PATH_DELIM + env.LOG_UNMATCHED_CELL_FILE, (os) => {
-                os.write(env.LOG_UNMATCHED_CELL_HEADER + env.ROW_DELIM);
-                os.write(worker.result.unmatchedCells.join(env.ROW_DELIM));
+            files.getStreamWriter(env.LOG_DIR + env.PATH_DELIM + env.LOG_UNMATCHED_BARCODE_FILE, (os) => {
+                os.write(env.LOG_UNMATCHED_BARCODE_HEADER + env.ROW_DELIM);
+                os.write(worker.result.unmatchedBarcodes.join(env.ROW_DELIM));
             });
             resolve();
         });
