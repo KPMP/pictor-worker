@@ -72,4 +72,8 @@ getPath = (basePath, geneName, datasetName, fileSuffix) => {
     return output;
 }
 
-module.exports = {streamRead, getStreamWriter, getPath};
+sanitize = (str) => {
+    return str ? str.replace(/["']/g, '') : false;
+}
+
+module.exports = {streamRead, getStreamWriter, getPath, sanitize};

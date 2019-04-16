@@ -55,3 +55,5 @@ module.exports.VIOLIN_PLOT_JITTER_OFFSET = parseFloat(process.env.VIOLIN_PLOT_JI
 module.exports.LOG_DIR = process.env.LOG_DIR || "./log";
 module.exports.LOG_UNMATCHED_BARCODE_FILE = process.env.LOG_UNMATCHED_BARCODE_FILE || "unmatchedBarcodes.txt";
 module.exports.LOG_UNMATCHED_BARCODE_HEADER = process.env.LOG_UNMATCHED_BARCODE_HEADER || "unmatched_barcode";
+module.exports.GENE_LIST_FILENAME = process.env.GENE_LIST_FILENAME || 'geneList.csv';
+module.exports.GENE_LIST_HEADER = process.env.GENE_LIST_HEADER || 'gene';

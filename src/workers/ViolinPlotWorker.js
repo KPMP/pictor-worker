@@ -39,8 +39,8 @@ class ViolinPlotWorker {
         return files.streamRead("parseBarcodeToCellMap", inPath, (line) => {
             const worker = ViolinPlotWorker.getInstance(),
                 row = line.split(env.IN_DELIM),
-                cell = worker.sanitize(row[env.BARCODE_FILE_CELL_NAME_IDX]),
-                cluster = worker.sanitize(row[env.BARCODE_FILE_CLUSTER_ID_IDX]);
+                cell = files.sanitize(row[env.BARCODE_FILE_CELL_NAME_IDX]),
+                cluster = files.sanitize(row[env.BARCODE_FILE_CLUSTER_ID_IDX]);
 
             if (row && row.length) {
                 worker.result.barcodeMap[cell] = cluster;
@@ -75,18 +75,18 @@ class ViolinPlotWorker {
 
             _.forEach(inputCols, (col, i) => {
                 if(i === 0) {
-                    gene = worker.sanitize(col);
+                    gene = files.sanitize(col);
                     skip = env.PARSE_GENES && env.PARSE_GENES.indexOf(gene) === -1;
                     return;
                 }
 
-                if(skip || !gene || !worker.sanitize(worker.result.readCountHeader[i])) {
+                if(skip || !gene || !files.sanitize(worker.result.readCountHeader[i])) {
                     return;
                 }
 
-                let cell = worker.sanitize(worker.result.readCountHeader[i]),
-                    cluster = worker.sanitize(worker.result.barcodeMap[cell]),
-                    readCount = worker.jitter(parseFloat(worker.sanitize(col))),
+                let cell = files.sanitize(worker.result.readCountHeader[i]),
+                    cluster = files.sanitize(worker.result.barcodeMap[cell]),
+                    readCount = worker.jitter(parseFloat(files.sanitize(col))),
                     row = [ cell, gene, cluster, readCount ];
 
                 if(!cluster) {
@@ -177,10 +177,6 @@ class ViolinPlotWorker {
             });
             resolve();
         });
-    }
-
-    sanitize(str) {
-        return str ? str.replace(/["']/g, '') : false;
     }
 
     jitter(val) {
