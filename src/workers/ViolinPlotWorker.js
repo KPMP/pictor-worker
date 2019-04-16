@@ -89,7 +89,7 @@ class ViolinPlotWorker {
                     readCount = worker.jitter(parseFloat(worker.sanitize(col))),
                     row = [ cell, gene, cluster, readCount ];
 
-                if(!cluster) {
+                if(!cluster && worker.result.unmatchedCells.indexOf(cell) === -1) {
                     log.debug('!!! Error: No cluster found for gene/cell ' + gene + '/' + cell + '; skipping');
                     worker.result.unmatchedCells.push(cell);
                     return;
