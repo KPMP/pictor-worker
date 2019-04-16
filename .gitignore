@@ -3,4 +3,5 @@ node_modules
 public/data/*.txt
 public/data/*.csv
 .env
+*.env
 .DS_Store

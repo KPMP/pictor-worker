@@ -1,4 +1,29 @@
-require('dotenv').config();
+const cla = require('command-line-args');
+
+const optDefs = [
+    {name: 'config', alias: 'c', type: String},
+    {name: 'help', alias: 'h', type: Boolean}
+];
+
+const options = cla(optDefs);
+
+const HELP_MSG = `
+This script parses transcriptomic read count tables and cell barcodes into servable CSVs.
+The parameters are stored in a .env file. Copy .env.example to .env and update it accordingly.
+You may also specify a .env file.
+
+Example:
+node index.js                              # Uses default .env in same directory
+node index.js --config=./some/other/.env   # Use a custom .env file
+node index.js -c=./some/other.env          # Same as above
+`;
+
+if(options.hasOwnProperty('help')) {
+    console.log(HELP_MSG);
+    process.exit(0);
+}
+
+require('dotenv').config({ path: options.hasOwnProperty('config') ? options.config : '.env' });
 
 module.exports.PATH_DELIM = process.env.PATH_DELIM || "/";
 module.exports.ROW_DELIM = process.env.ROW_DELIM || "\n";
