@@ -39,9 +39,9 @@ class ViolinPlotWorker {
             const worker = ViolinPlotWorker.getInstance(),
                 row = line.split(env.IN_DELIM),
                 cell = worker.sanitize(row[env.BARCODE_FILE_CELL_NAME_IDX]),
-                cluster = worker.sanitize(row[env. BARCODE_FILE_CLUSTER_ID_IDX]);
+                cluster = worker.sanitize(row[env.BARCODE_FILE_CLUSTER_ID_IDX]);
 
-            if (row && row.length === 2) {
+            if (row && row.length) {
                 worker.result.barcodeMap[cell] = cluster;
 
                 worker.result.clusterLegend[cluster] =
