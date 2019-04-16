@@ -2,20 +2,20 @@ const _ = require('lodash');
 const env = require('../util/env');
 const log = require('../util/log');
 const files = require('../util/files');
-const BinWorker = require('./BinWorker').BinWorker;
+const ViolinPlotBinWorker = require('./ViolinPlotBinWorker').ViolinPlotBinWorker;
 
-class PictorWorker {
+class ViolinPlotWorker {
 
     constructor() {
         this.clearData();
     }
 
     static getInstance() {
-        if(PictorWorker.instance == null) {
-            PictorWorker.instance = new PictorWorker();
+        if(ViolinPlotWorker.instance == null) {
+            ViolinPlotWorker.instance = new ViolinPlotWorker();
         }
 
-        return PictorWorker.instance;
+        return ViolinPlotWorker.instance;
     }
 
     clearData() {
@@ -33,7 +33,7 @@ class PictorWorker {
 
     parseBarcodeToCellMap(inPath) {
         return files.streamRead("parseBarcodeToCellMap", inPath, (line) => {
-            const worker = PictorWorker.getInstance(),
+            const worker = ViolinPlotWorker.getInstance(),
                 row = line.split(env.IN_DELIM),
                 cell = worker.sanitize(row[0]),
                 cluster = worker.sanitize(row[1]);
@@ -53,12 +53,13 @@ class PictorWorker {
 
     processReadCountTable(datasetName, inPath, outPath) {
         return files.streamRead("processReadCountTable", inPath, (line) => {
-            const worker = PictorWorker.getInstance(),
+            const worker = ViolinPlotWorker.getInstance(),
                 inputCols = line.split(env.IN_DELIM), // this will be factors of 10^4, 10^5 long
                 outputRows = [];
-            let gene = null;
+            let gene = null,
+                skip = false;
 
-            log.debug(inputCols.length + " columns found");
+            // log.debug(inputCols.length + " columns found");
 
             if(!worker.result.readCountHeader.length) {
                 worker.result.readCountHeader = inputCols;
@@ -69,13 +70,20 @@ class PictorWorker {
             _.forEach(inputCols, (col, i) => {
                 if(i === 0) {
                     gene = worker.sanitize(col);
-                    if (gene) {
-                        log.info("... Processing gene " + gene);
+                    skip = env.PARSE_GENES && env.PARSE_GENES.indexOf(gene) === -1;
+
+                    if(skip) {
+                        log.debug('!!! Skipping gene ' + gene);
                     }
+
+                    if (!skip && gene) {
+                        log.debug('... Processing gene ' + gene);
+                    }
+
                     return;
                 }
 
-                if(!gene || !worker.sanitize(worker.result.readCountHeader[i])) {
+                if(skip || !gene || !worker.sanitize(worker.result.readCountHeader[i])) {
                     return;
                 }
 
@@ -92,7 +100,7 @@ class PictorWorker {
                 outputRows.push(row);
             });
 
-            if(gene && gene.length > 0) {
+            if(!skip && gene && gene.length > 0) {
                 worker.writeToGeneDatasetFile(
                     outputRows,
                     outPath,
@@ -101,17 +109,16 @@ class PictorWorker {
                 );
 
                 worker.result.readCountRowCt++;
+
+                ViolinPlotBinWorker
+                    .getInstance()
+                    .writeViolinPlotBins(
+                        outputRows,
+                        outPath,
+                        gene,
+                        datasetName
+                    );
             }
-
-            BinWorker
-                .getInstance()
-                .writeViolinPlotBins(
-                    outputRows,
-                    outPath,
-                    gene,
-                    datasetName
-                );
-
         });
     }
 
@@ -119,7 +126,7 @@ class PictorWorker {
         return new Promise((resolve, reject) => {
             log.debug('... writeLegend');
 
-            const worker = PictorWorker.getInstance(),
+            const worker = ViolinPlotWorker.getInstance(),
                 outPath = [outDir, datasetName + "_" + env.LEGEND_FILENAME].join(env.PATH_DELIM) + (env.OUT_DELIM === "," ? ".csv" : ".txt");
 
             files.getStreamWriter(outPath, (os) => {
@@ -148,7 +155,7 @@ class PictorWorker {
     }
 
     logResult() {
-        const worker = PictorWorker.getInstance();
+        const worker = ViolinPlotWorker.getInstance();
         return new Promise((resolve, reject) => {
             log.debug('... logResult');
             log.info('Barcode ct: ' + worker.result.barcodeCt);
@@ -163,4 +170,4 @@ class PictorWorker {
     }
 }
 
-module.exports = { PictorWorker };
+module.exports = { ViolinPlotWorker: ViolinPlotWorker };

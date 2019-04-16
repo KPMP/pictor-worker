@@ -8,8 +8,6 @@ module.exports.LEGEND_FILENAME = process.env.LEGEND_FILENAME || "Legend";
 module.exports.LEGEND_HEADER = process.env.LEGEND_HEADER || "datasetcluster,cellct,mastercluster";
 module.exports.VIOLIN_PLOT_FILENAME = process.env.VIOLIN_PLOT_FILENAME || "violinPlot";
 module.exports.VIOLIN_PLOT_HEADER = process.env.VIOLIN_PLOT_HEADER || "cellname,gene,cluster,readcount";
-module.exports.WRITE_FILES = process.env.WRITE_FILES === "true";
-module.exports.DEBUGGING = process.env.DEBUGGING === "true";
 module.exports.DATASET_NAME = process.env.DATASET_NAME || undefined;
 module.exports.DST_DIR = process.env.DST_DIR || undefined;
 module.exports.BARCODE_FILE = process.env.BARCODE_FILE || undefined;
@@ -18,3 +16,6 @@ module.exports.VIOLIN_BIN_FILENAME = process.env.VIOLIN_BIN_FILENAME || "violinP
 module.exports.VIOLIN_BIN_HEADER = process.env.VIOLIN_BIN_HEADER || "cluster,";
 module.exports.VIOLIN_BIN_BANDWIDTH = parseFloat(process.env.VIOLIN_BIN_BANDWIDTH) || 0.25;
 module.exports.VIOLIN_BIN_PREFIX = process.env.VIOLIN_BIN_PREFIX || "readct-";
+module.exports.WRITE_FILES = process.env.WRITE_FILES === "true";
+module.exports.DEBUGGING = process.env.DEBUGGING === "true";
+module.exports.PARSE_GENES = process.env.PARSE_GENES ? process.env.PARSE_GENES.split(',') : undefined;

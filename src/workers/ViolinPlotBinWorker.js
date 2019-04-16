@@ -3,18 +3,18 @@ const files = require('../util/files');
 const log = require("../util/log");
 const _ = require('lodash');
 
-class BinWorker {
+class ViolinPlotBinWorker {
 
     constructor() {
         this.clearData();
     }
 
     static getInstance() {
-        if (BinWorker.instance == null) {
-            BinWorker.instance = new BinWorker();
+        if (ViolinPlotBinWorker.instance == null) {
+            ViolinPlotBinWorker.instance = new ViolinPlotBinWorker();
         }
 
-        return BinWorker.instance;
+        return ViolinPlotBinWorker.instance;
     }
 
     clearData() {
@@ -26,14 +26,14 @@ class BinWorker {
     }
 
     writeViolinPlotBins(rows, basePath, geneName, datasetName) {
-        const worker = BinWorker.getInstance();
+        const worker = ViolinPlotBinWorker.getInstance();
         worker.calculateBins(geneName, rows);
         worker.writeGeneToVolinPlotFile(basePath, datasetName, geneName);
     }
 
     calculateBins(geneName, rows) {
         _.forEach(rows, (row) => {
-            const worker = BinWorker.getInstance(),
+            const worker = ViolinPlotBinWorker.getInstance(),
                 readCt = row[3],
                 cluster = row[2];
 
@@ -49,11 +49,16 @@ class BinWorker {
             worker.result.genes[geneName].counts[cluster]++;
 
             let i = 0;
+
             while (true) {
                 let bin = env.VIOLIN_BIN_PREFIX + i;
                 worker.result.genes[geneName].bins[cluster][bin] = worker.result.genes[geneName].bins[cluster][bin] || 0;
-                // log.debug('Bin: ' + bin);
                 if (readCt - i < env.VIOLIN_BIN_BANDWIDTH) {
+
+                    if(readCt > 0) {
+                        log.info('+++ Matched ' + readCt + ' -> ' + bin);
+                    }
+
                     worker.result.genes[geneName].bins[cluster][bin]++;
                     worker.result.genes[geneName].maxBin = Math.max(worker.result.genes[geneName].maxBin, i);
                     return;
@@ -67,7 +72,7 @@ class BinWorker {
     }
 
     writeGeneToVolinPlotFile(basePath, datasetName, geneName) {
-        const worker = BinWorker.getInstance(),
+        const worker = ViolinPlotBinWorker.getInstance(),
             outPath = files.getPath(basePath, geneName, datasetName, env.VIOLIN_BIN_FILENAME);
 
         files.getStreamWriter(outPath, (os, isNew) => {
@@ -92,4 +97,4 @@ class BinWorker {
     }
 }
 
-module.exports = { BinWorker };
+module.exports = { ViolinPlotBinWorker: ViolinPlotBinWorker };

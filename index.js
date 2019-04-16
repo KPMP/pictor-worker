@@ -1,6 +1,6 @@
 const env = require('./src/util/env');
 const log = require('./src/util/log');
-const PictorWorker = require('./src/workers/PictorWorker').PictorWorker;
+const ViolinPlotWorker = require('./src/workers/ViolinPlotWorker').ViolinPlotWorker;
 
 const HELP_MSG = `
 ERROR: Missing required arguments or .env configuration.
@@ -15,7 +15,7 @@ Example:
 node index.js "LMD" "./public/data/dst" "./public/data/barcodes.txt" "./public/data/table.txt" "\\t" ","
 `;
 
-const worker = PictorWorker.getInstance();
+const worker = ViolinPlotWorker.getInstance();
 let datasetNameInput = env.DATASET_NAME,
     dstOutputPath = env.DST_DIR,
     barcodeToCellMapInputPath = env.BARCODE_FILE,
