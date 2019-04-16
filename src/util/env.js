@@ -48,3 +48,7 @@ module.exports.DEBUGGING = process.env.DEBUGGING === "true";
 module.exports.PARSE_GENES = process.env.PARSE_GENES ? process.env.PARSE_GENES.split(',') : undefined;
 module.exports.BARCODE_FILE_CELL_NAME_IDX = parseInt(process.env.BARCODE_FILE_CELL_NAME_IDX) || 0;
 module.exports.BARCODE_FILE_CLUSTER_ID_IDX = parseInt(process.env.BARCODE_FILE_CLUSTER_ID_IDX) || 1;
+module.exports.VIOLIN_PLOT_JITTER_ENABLE = process.env.VIOLIN_PLOT_JITTER_ENABLE === "true";
+module.exports.VIOLIN_PLOT_JITTER_SEED = process.env.VIOLIN_PLOT_JITTER_SEED || "apr1619";
+module.exports.VIOLIN_PLOT_JITTER_DIVISOR = parseFloat(process.env.VIOLIN_PLOT_JITTER_DIVISOR) || 200;
+module.exports.VIOLIN_PLOT_JITTER_OFFSET = parseFloat(process.env.VIOLIN_PLOT_JITTER_OFFSET) || 1;

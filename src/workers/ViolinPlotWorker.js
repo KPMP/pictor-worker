@@ -2,7 +2,10 @@ const _ = require('lodash');
 const env = require('../util/env');
 const log = require('../util/log');
 const files = require('../util/files');
+const seedrandom = require('seedrandom');
 const ViolinPlotBinWorker = require('./ViolinPlotBinWorker').ViolinPlotBinWorker;
+
+const rng = seedrandom(env.VIOLIN_PLOT_JITTER_SEED);
 
 class ViolinPlotWorker {
 
@@ -89,7 +92,7 @@ class ViolinPlotWorker {
 
                 let cell = worker.sanitize(worker.result.readCountHeader[i]),
                     cluster = worker.sanitize(worker.result.barcodeMap[cell]),
-                    readCount = parseFloat(worker.sanitize(col)),
+                    readCount = worker.jitter(parseFloat(worker.sanitize(col))),
                     row = [ cell, gene, cluster, readCount ];
 
                 if(!cluster) {
@@ -167,6 +170,12 @@ class ViolinPlotWorker {
 
     sanitize(str) {
         return str ? str.replace(/["']/g, '') : false;
+    }
+
+    jitter(val) {
+        return !env.VIOLIN_PLOT_JITTER_ENABLE ?
+            val :
+            val + env.VIOLIN_PLOT_JITTER_OFFSET + rng() / env.VIOLIN_PLOT_JITTER_DIVISOR;
     }
 }
 
