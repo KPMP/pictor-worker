@@ -16,7 +16,4 @@ worker
         env.DATASET_NAME,
         env.DST_DIR))
     .then(() => worker.logResult())
-    .catch((err) => log.info(err))
-    .finally(() => {
-        log.debug(worker.result.barcodeMap);
-    });
+    .catch((err) => log.info(err));

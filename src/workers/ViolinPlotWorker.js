@@ -28,8 +28,9 @@ class ViolinPlotWorker {
             clusterLegend: {},
             readCountHeader: [],
             barcodeCt: 0,
-            readCountRowCt: 0
-        };
+            readCountRowCt: 0,
+            unmatchedCells: []
+        }
 
         return this;
     }
@@ -89,7 +90,9 @@ class ViolinPlotWorker {
                     row = [ cell, gene, cluster, readCount ];
 
                 if(!cluster) {
-                    log.debug('!!! Error: No cluster found for gene/cell ' + gene + '/' + cell);
+                    log.debug('!!! Error: No cluster found for gene/cell ' + gene + '/' + cell + '; skipping');
+                    worker.result.unmatchedCells.push(cell);
+                    return;
                 }
 
                 maxReadCount = Math.max(maxReadCount, readCount);
@@ -163,6 +166,11 @@ class ViolinPlotWorker {
             log.info('Barcode ct: ' + worker.result.barcodeCt);
             log.info('Read count row ct: ' + worker.result.readCountRowCt);
             log.info('Runtime: ' + ((Date.now() - this.result.startTime) / 1000) + "s");
+
+            files.getStreamWriter(env.LOG_DIR + env.PATH_DELIM + env.LOG_UNMATCHED_CELL_FILE, (os) => {
+                os.write(env.LOG_UNMATCHED_CELL_HEADER + env.ROW_DELIM);
+                os.write(worker.result.unmatchedCells.join(env.ROW_DELIM));
+            });
             resolve();
         });
     }

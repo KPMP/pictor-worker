@@ -52,3 +52,6 @@ module.exports.VIOLIN_PLOT_JITTER_ENABLE = process.env.VIOLIN_PLOT_JITTER_ENABLE
 module.exports.VIOLIN_PLOT_JITTER_SEED = process.env.VIOLIN_PLOT_JITTER_SEED || "apr1619";
 module.exports.VIOLIN_PLOT_JITTER_DIVISOR = parseFloat(process.env.VIOLIN_PLOT_JITTER_DIVISOR) || 200;
 module.exports.VIOLIN_PLOT_JITTER_OFFSET = parseFloat(process.env.VIOLIN_PLOT_JITTER_OFFSET) || 1;
+module.exports.LOG_DIR = process.env.LOG_DIR || "./log";
+module.exports.LOG_UNMATCHED_CELL_FILE = process.env.LOG_UNMATCHED_CELL_FILE || "unmatchedCells.txt";
+module.exports.LOG_UNMATCHED_CELL_HEADER = process.env.LOG_UNMATCHED_CELL_HEADER || "unmatched_cells";
