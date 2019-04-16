@@ -3,7 +3,6 @@ const files = require('../src/util/files');
 const worker = ViolinPlotBinWorker.getInstance();
 
 const TEST_PATH = "./tests/data";
-const TEST_DIRS = ["CCDC115", "NPHS2"];
 const VIOLIN_PLOT_FILE = "SCRNA-SEQ_violinPlot.csv";
 const VIOLIN_PLOT_BIN_FILE = "SCRNA-SEQ_violinPlotBins.csv";
 
@@ -37,8 +36,8 @@ binTotalsTest = (testDir) => {
                 testResults.binSum += parseInt(row[i]);
             }
         });
-    }).then(() => expect(testResults.rowCt).toBe(testResults.binSum));
+    }).then(() => expect(testResults.binSum).toBe(testResults.rowCt));
 };
 
-test('Total number of lines equals sum of all bins, case 1', () => binTotalsTest(TEST_DIRS[0]));
-test('Total number of lines equals sum of all bins, case 2', () => binTotalsTest(TEST_DIRS[1]));
+test('Sum of bins equals number of read counts, case 1: CCDC115', () => binTotalsTest("CCDC115"));
+test('Sum of bins equals number of read counts, case 2: NPHS2',   () => binTotalsTest("NPHS2"));

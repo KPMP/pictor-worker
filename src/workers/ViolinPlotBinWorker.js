@@ -53,12 +53,8 @@ class ViolinPlotBinWorker {
             while (true) {
                 let bin = env.VIOLIN_BIN_PREFIX + i;
                 worker.result.genes[geneName].bins[cluster][bin] = worker.result.genes[geneName].bins[cluster][bin] || 0;
+
                 if (readCt - i < env.VIOLIN_BIN_BANDWIDTH) {
-
-                    if(readCt > 0) {
-                        log.info('+++ Matched ' + readCt + ' -> ' + bin);
-                    }
-
                     worker.result.genes[geneName].bins[cluster][bin]++;
                     worker.result.genes[geneName].maxBin = Math.max(worker.result.genes[geneName].maxBin, i);
                     return;
@@ -78,7 +74,7 @@ class ViolinPlotBinWorker {
         files.getStreamWriter(outPath, (os, isNew) => {
             let bins = [], i = 0;
 
-            while (i < worker.result.genes[geneName].maxBin) {
+            while (i <= worker.result.genes[geneName].maxBin) {
                 bins.push(env.VIOLIN_BIN_PREFIX + i);
                 i += env.VIOLIN_BIN_BANDWIDTH;
             }

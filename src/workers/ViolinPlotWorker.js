@@ -60,7 +60,9 @@ class ViolinPlotWorker {
                 inputCols = line.split(env.IN_DELIM), // this will be factors of 10^4, 10^5 long
                 outputRows = [];
             let gene = null,
-                skip = false;
+                skip = false,
+                maxReadCount = 0,
+                readCountCt = 0;
 
             // log.debug(inputCols.length + " columns found");
 
@@ -74,15 +76,6 @@ class ViolinPlotWorker {
                 if(i === 0) {
                     gene = worker.sanitize(col);
                     skip = env.PARSE_GENES && env.PARSE_GENES.indexOf(gene) === -1;
-
-                    if(skip) {
-                        log.debug('!!! Skipping gene ' + gene);
-                    }
-
-                    if (!skip && gene) {
-                        log.debug('... Processing gene ' + gene);
-                    }
-
                     return;
                 }
 
@@ -99,11 +92,17 @@ class ViolinPlotWorker {
                     log.debug('!!! Error: No cluster found for gene/cell ' + gene + '/' + cell);
                 }
 
+                maxReadCount = Math.max(maxReadCount, readCount);
+                readCountCt++;
+
                 //log.debug(row);
                 outputRows.push(row);
             });
 
             if(!skip && gene && gene.length > 0) {
+
+                log.info('... Parsed ' + readCountCt + ' reads for ' + gene + '; max: ' + maxReadCount);
+
                 worker.writeToGeneDatasetFile(
                     outputRows,
                     outPath,
