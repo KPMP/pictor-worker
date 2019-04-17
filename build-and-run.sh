@@ -1,8 +1,8 @@
 #!/bin/bash
 #### This file will regenerate only the 2 given genes, replace the files in test/data, and rerun tests.
-#### These are the same 2 genes that the ViolinBinWorker.NPHS2.test.js expects, so re-running tests without
-#### previously regenerating the files should also work fine.
-#### Mostly this script is helpful for interactively debugging while changing code.
+#### These are the same 2 genes that the files ViolinBinWorker.{CCDC115,NPHS2}.test.js expect, so re-running tests
+#### without previously regenerating files should also work fine.
+#### Mostly this script is helpful for interactively debugging while changing code and updating test logic.
 
 DST_DIR=/Users/rossmith/prj/kpmp/data/pictor-worker/out-kpmp-test
 
