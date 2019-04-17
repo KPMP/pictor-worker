@@ -57,6 +57,7 @@ checkScriptAgainstRTest = () => {
             scriptFileUnmappedBarcodes: [],
             checkFileUnmappedBarcodes: [],
             clusterDistributions: {},
+            clusterSums: {}
     };
 
     return plotWorker.parseBarcodeToCellMap(env.BARCODE_FILE)
@@ -139,21 +140,27 @@ checkScriptAgainstRTest = () => {
                 .filter((barcode) => barcodeMapKeys.indexOf(barcode) === -1);
 
             _.forEach(scriptFileKeys,(barcode) => {
-                let clusterDist =
-                    testResults.clusterDistributions[testData.scriptFileReads[barcode].cluster] ||
-                    { "scriptCt": 0, "checkCt": 0, "barcodeMapCt": 0 };
+                let clusterDist = testResults.clusterDistributions[testData.scriptFileReads[barcode].cluster] ||
+                    { "scriptCt": 0, "checkCt": 0, "barcodeMapCt": 0 },
+                    clusterSum = testResults.clusterSums[testData.scriptFileReads[barcode].cluster] ||
+                    { "scriptSum": 0, "checkSum": 0 };
 
                 clusterDist.scriptCt++;
+                clusterSum.scriptSum += parseFloat(testData.scriptFileReads[barcode].readCount);
                 testResults.clusterDistributions[testData.scriptFileReads[barcode].cluster] = clusterDist;
+                testResults.clusterSums[testData.scriptFileReads[barcode].cluster] = clusterSum;
             });
 
             _.forEach(checkFileKeys,(barcode) => {
-                let clusterDist =
-                    testResults.clusterDistributions[testData.checkFileReads[barcode].cluster] ||
-                    { "scriptCt": 0, "checkCt": 0, "barcodeMapCt": 0 };
+                let clusterDist = testResults.clusterDistributions[testData.checkFileReads[barcode].cluster] ||
+                    { "scriptCt": 0, "checkCt": 0, "barcodeMapCt": 0 },
+                    clusterSum = testResults.clusterSums[testData.checkFileReads[barcode].cluster] ||
+                    { "scriptSum": 0, "checkSum": 0 };
 
                 clusterDist.checkCt++;
+                clusterSum.checkSum += parseFloat(testData.checkFileReads[barcode].readCount);
                 testResults.clusterDistributions[testData.checkFileReads[barcode].cluster] = clusterDist;
+                testResults.clusterSums[testData.checkFileReads[barcode].cluster] = clusterSum;
             });
 
             _.forEach(barcodeMapKeys,(barcode) => {

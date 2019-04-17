@@ -65,11 +65,8 @@ class ViolinPlotWorker {
                 maxReadCount = 0,
                 readCountCt = 0;
 
-            // log.debug(inputCols.length + " columns found");
-
             if(!worker.result.readCountHeader.length) {
                 worker.result.readCountHeader = inputCols;
-                //log.debug("+++ Header found: " + JSON.stringify(inputCols));
                 return;
             }
 
@@ -84,7 +81,8 @@ class ViolinPlotWorker {
                     return;
                 }
 
-                let cell = files.sanitize(worker.result.readCountHeader[i]),
+                let cellHeaderIndex = i - 1,
+                    cell = files.sanitize(worker.result.readCountHeader[cellHeaderIndex]),
                     cluster = files.sanitize(worker.result.barcodeMap[cell]),
                     readCount = worker.jitter(parseFloat(files.sanitize(col))),
                     row = [ cell, gene, cluster, readCount ];
