@@ -1,7 +1,7 @@
 const cla = require('command-line-args');
 
 const optDefs = [
-    {name: 'config', alias: 'c', type: String},
+    {name: 'mungeConfig', alias: 'm', type: String},
     {name: 'help', alias: 'h', type: Boolean}
 ];
 
@@ -15,9 +15,9 @@ You may also specify a .env file.
 WARNING: If no .env is found, defaults will be used silently as defined in src/util/env.js.
 
 Example:
-node index.js                              # Uses default .env in same directory
-node index.js --config=./some/other/.env   # Use a custom .env file
-node index.js -c=./some/other.env          # Same as above
+node index.js                                   # Uses default .env in same directory
+node index.js --mungeConfig=./some/other/.env   # Use a custom .env file
+node index.js -m=./some/other.env               # Same as above
 `;
 
 if(options.hasOwnProperty('help')) {
@@ -25,7 +25,7 @@ if(options.hasOwnProperty('help')) {
     process.exit(0);
 }
 
-require('dotenv').config({ path: options.hasOwnProperty('config') ? options.config : '.env' });
+require('dotenv').config({ path: options.hasOwnProperty('mungeConfig') ? options.mungeConfig : '.env' });
 
 module.exports.PATH_DELIM = process.env.PATH_DELIM || "/";
 module.exports.ROW_DELIM = process.env.ROW_DELIM || "\n";

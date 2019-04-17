@@ -6,9 +6,9 @@
 
 DST_DIR=/Users/rossmith/prj/kpmp/data/pictor-worker/out-kpmp-test
 
-node ./index.js --config=./tests/BinWorker.test.env
+node ./index.js --mungeConfig=./tests/BinWorker.test.env
 
 cp $DST_DIR/C/CCDC115/*.csv ./tests/data/CCDC115/
 cp $DST_DIR/N/NPHS2/*.csv ./tests/data/NPHS2/
 
-npm run test
+node ./tests/test-runner.js --mungeConfig=./tests/BinWorker.test.env

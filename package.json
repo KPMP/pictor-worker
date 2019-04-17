@@ -13,6 +13,7 @@
     "dotenv": "^7.0.0",
     "event-stream": "^4.0.1",
     "graceful-fs": "4.1.15",
+    "jest-cli": "^24.7.1",
     "lodash": "4.17.11",
     "seedrandom": "^3.0.1",
     "shelljs": "^0.8.3"
