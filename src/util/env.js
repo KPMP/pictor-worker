@@ -57,3 +57,5 @@ module.exports.LOG_UNMATCHED_BARCODE_FILE = process.env.LOG_UNMATCHED_BARCODE_FI
 module.exports.LOG_UNMATCHED_BARCODE_HEADER = process.env.LOG_UNMATCHED_BARCODE_HEADER || "unmatched_barcode";
 module.exports.GENE_LIST_FILENAME = process.env.GENE_LIST_FILENAME || 'geneList.csv';
 module.exports.GENE_LIST_HEADER = process.env.GENE_LIST_HEADER || 'gene';
+module.exports.VIOLIN_PLOT_CHECKER_FILE = process.env.VIOLIN_PLOT_CHECKER_FILE || 'ViolinPlotCheckerOutput.json';
+module.exports.VIOLIN_BIN_CHECKER_FILE = process.env.VIOLIN_BIN_CHECKER_FILE || 'ViolinBinCheckerOutput.json';

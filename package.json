@@ -4,7 +4,7 @@
   "description": "Containerized worker scripts to transform data for consumption by kpmp/pictor-web",
   "main": "run.js",
   "scripts": {
-    "test": "jest"
+    "test": "node tests/test-runner.js  --mungeConfig=./tests/test.env"
   },
   "author": "Ross Smith",
   "license": "ISC",

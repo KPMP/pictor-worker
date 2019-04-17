@@ -1,11 +1,11 @@
 const env = require('./src/util/env');
 const log = require('./src/util/log');
 const ViolinPlotWorker = require('./src/workers/ViolinPlotWorker').ViolinPlotWorker;
-const ViolinPlotBinWorker = require('./src/workers/ViolinPlotBinWorker').ViolinPlotBinWorker;
+const ViolinBinWorker = require('./src/workers/ViolinBinWorker').ViolinBinWorker;
 const GeneListWorker = require('./src/workers/GeneListWorker').GeneListWorker;
 
 const plotWorker = ViolinPlotWorker.getInstance(),
-    binWorker = ViolinPlotBinWorker.getInstance(),
+    binWorker = ViolinBinWorker.getInstance(),
     geneWorker = GeneListWorker.getInstance();
 
 plotWorker

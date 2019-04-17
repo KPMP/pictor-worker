@@ -3,7 +3,7 @@ const env = require('../util/env');
 const log = require('../util/log');
 const files = require('../util/files');
 const seedrandom = require('seedrandom');
-const ViolinPlotBinWorker = require('./ViolinPlotBinWorker').ViolinPlotBinWorker;
+const ViolinBinWorker = require('./ViolinBinWorker').ViolinBinWorker;
 
 const rng = seedrandom(env.VIOLIN_PLOT_JITTER_SEED);
 
@@ -116,7 +116,7 @@ class ViolinPlotWorker {
 
                 worker.result.readCountRowCt++;
 
-                ViolinPlotBinWorker
+                ViolinBinWorker
                     .getInstance()
                     .writeViolinPlotBins(
                         outputRows,
