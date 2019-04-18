@@ -16,9 +16,6 @@ plotWorker
         env.DATASET_NAME,
         env.DATA_FILE,
         env.DST_DIR))
-    .then(() => plotWorker.writeLegend(
-        env.DATASET_NAME,
-        env.DST_DIR))
     .then(() => geneWorker.loadGenes())
     .then(() => geneWorker.putGenes(Object.keys(binWorker.result.genes)))
     .then(() => geneWorker.writeGenes())

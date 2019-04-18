@@ -1,0 +1,3 @@
+structure,cell_type,master_cluster_ID,SNDROP-SEQ,MDSCRNA-SEQ,SCRNA-SEQ
+Test Glomerulus,Test Glom A,1,2,20,25
+Test Endothelial,Test EC B,1,1,19,24

@@ -5,10 +5,6 @@ const log = require('../util/log');
 const files = require('../util/files');
 const ViolinPlotWorker = require('../workers/ViolinPlotWorker').ViolinPlotWorker;
 
-const TEST_PATH = "./tests/data";
-const VIOLIN_PLOT_FILE = "SCRNA-SEQ_violinPlot.csv";
-const CHECK_PLOT_FILE = "NPHS2_1.txt";
-
 class ViolinPlotChecker {
     constructor() {
         this.clearData();
@@ -54,7 +50,7 @@ class ViolinPlotChecker {
                 log.debug('+++ ViolinPlotChecker.checkData');
                 checker.data.barcodeMap = ViolinPlotWorker.getInstance().result.barcodeMap;
 
-                return files.streamRead("Load Checkfile", TEST_PATH + "/NPHS2/" + CHECK_PLOT_FILE, (line) => {
+                return files.streamRead("Load Checkfile", env.VIOLIN_PLOT_CHECKER_CHECK_FILE, (line) => {
                     const row = line.split("\t");
                     if (row[0] === "cellname") {
                         return;
@@ -72,7 +68,7 @@ class ViolinPlotChecker {
 
             // Get the read counts, cell names, and clusters from the script-made file
             .then(() => {
-                return files.streamRead("Load Script Outputs to Check", TEST_PATH + "/NPHS2/" + VIOLIN_PLOT_FILE, (line) => {
+                return files.streamRead("Load Script Outputs to Check", env.VIOLIN_PLOT_CHECKER_SCRIPT_OUTPUT_FILE, (line) => {
                     const row = line.split(",");
                     if (row[0] === "cellname") {
                         return;

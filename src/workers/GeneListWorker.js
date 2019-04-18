@@ -18,8 +18,12 @@ class GeneListWorker {
     }
 
     clearData() {
+
+        this.data = [];
+
         this.result = {
-            genes: []
+            genes: [],
+            clusterMap: []
         };
 
         return this;

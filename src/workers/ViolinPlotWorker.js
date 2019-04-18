@@ -25,7 +25,6 @@ class ViolinPlotWorker {
         this.result = {
             startTime: Date.now(),
             barcodeMap: {},
-            clusterLegend: {},
             readCountHeader: [],
             barcodeCt: 0,
             readCountRowCt: 0,
@@ -44,12 +43,6 @@ class ViolinPlotWorker {
 
             if (row && row.length) {
                 worker.result.barcodeMap[cell] = cluster;
-
-                worker.result.clusterLegend[cluster] =
-                    worker.result.clusterLegend[cluster] ||
-                    0;
-
-                worker.result.clusterLegend[cluster]++;
                 worker.result.barcodeCt++;
             }
         });
@@ -125,30 +118,6 @@ class ViolinPlotWorker {
                         datasetName
                     );
             }
-        });
-    }
-
-    writeLegend(datasetName, outDir) {
-        return new Promise((resolve, reject) => {
-            log.debug('... writeLegend');
-
-            const worker = ViolinPlotWorker.getInstance(),
-                outPath = [outDir, datasetName + "_" + env.LEGEND_FILENAME].join(env.PATH_DELIM) + (env.OUT_DELIM === "," ? ".csv" : ".txt");
-
-            files.getStreamWriter(outPath, (os) => {
-                let clusters = Object.keys(worker.result.clusterLegend);
-                clusters.sort((a, b) => parseInt(a) - parseInt(b));
-
-                os.write(env.LEGEND_HEADER + env.ROW_DELIM);
-
-                _.forEach(clusters, (cluster) => {
-                    os.write(datasetName + env.OUT_DELIM +
-                        cluster + env.OUT_DELIM +
-                        worker.result.clusterLegend[cluster] + env.OUT_DELIM + env.ROW_DELIM);
-                });
-
-                resolve();
-            });
         });
     }
 

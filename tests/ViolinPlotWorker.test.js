@@ -13,7 +13,7 @@ afterAll(() => {
     checker.logResult();
 });
 
-describe('Violin Plot Worker, check against R-generated NPHS2 clusters', () => {
+describe('Violin Plot Worker, check against R-generated checks clusters', () => {
     it('Expect no script file singlets', () => expect(checker.result.scriptFileSinglets.length).toBe(0));
     it('Expect no check file singlets', () => expect(checker.result.checkFileSinglets.length).toBe(0));
     it('Expect no script file misclusters', () => expect(checker.result.scriptFileMisclusters.length).toBe(0));
