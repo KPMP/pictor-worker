@@ -62,3 +62,4 @@ module.exports.LEGEND_FILE = process.env.LEGEND_FILE || undefined;
 module.exports.VIOLIN_PLOT_CHECKER_SCRIPT_OUTPUT_FILE = process.env.VIOLIN_PLOT_CHECKER_SCRIPT_OUTPUT_FILE || undefined;
 module.exports.VIOLIN_PLOT_CHECKER_CHECK_FILE = process.env.VIOLIN_PLOT_CHECKER_CHECK_FILE || undefined;
 module.exports.VIOLIN_BIN_CHECKER_BASE_DIR = process.env.VIOLIN_BIN_CHECKER_BASE_DIR || undefined;
+module.exports.CLUSTER_MAP_HEADER = process.env.CLUSTER_MAP_HEADER || 'structure,cell_type,master_cluster_ID,SNDROP_SEQ,MDSCRNA_SEQ,SCRNA_SEQ';

@@ -18,33 +18,26 @@ class GeneListWorker {
     }
 
     clearData() {
-
-        this.data = [];
-
         this.result = {
-            genes: [],
-            clusterMap: []
+            genes: []
         };
 
         return this;
     }
 
     loadGenes() {
-        const inPath = env.DST_DIR + env.PATH_DELIM + env.GENE_LIST_FILENAME;
-        if(fs.existsSync(inPath)) {
-            return files.streamRead("LoadGenes", inPath, (line) => {
-                if(line === env.GENE_LIST_HEADER) {
-                    return;
-                }
+        return new Promise((res, rej) => {
+            const worker = GeneListWorker.getInstance();
+            const inPath = env.DST_DIR + env.PATH_DELIM + env.GENE_LIST_FILENAME;
+            if(fs.existsSync(inPath)) {
+                worker.result.genes = JSON.parse(fs.readFileSync(inPath, 'utf8')).genes;
+            }
 
-                GeneListWorker.getInstance().putGenes([line]);
-            });
-        }
-
-        else {
-            log.info('+++ No gene file exists at ' + inPath + '; skipping');
-            return new Promise((res, rej) => res());
-        }
+            else {
+                log.info('+++ No gene file exists at ' + inPath + '; skipping');
+                res();
+            }
+        });
     }
 
     putGenes(genes) {
@@ -57,15 +50,14 @@ class GeneListWorker {
     }
 
     writeGenes() {
+        const worker = GeneListWorker.getInstance();
         const outPath = env.DST_DIR + env.PATH_DELIM + env.GENE_LIST_FILENAME;
+        log.info('+++ GeneListWorker.writeGenes');
+        log.info(worker.result);
         return files.getStreamWriter(outPath, (os) => {
-            const worker = GeneListWorker.getInstance();
             let genes = worker.result.genes;
             genes.sort();
-            os.write(env.GENE_LIST_HEADER + env.ROW_DELIM);
-            _.forEach(genes, (gene) => {
-                os.write(gene + env.ROW_DELIM);
-            });
+            os.write(JSON.stringify({genes: genes}, null, 4));
         });
     }
 }
