@@ -28,7 +28,7 @@ class ViolinBinWorker {
     writeViolinPlotBins(rows, basePath, geneName, datasetName) {
         const worker = ViolinBinWorker.getInstance();
         worker.calculateBins(geneName, rows);
-        worker.writeGeneToVolinPlotFile(basePath, datasetName, geneName);
+        worker.writeViolinBinFile(basePath, datasetName, geneName);
     }
 
     calculateBins(geneName, rows) {
@@ -67,7 +67,7 @@ class ViolinBinWorker {
         });
     }
 
-    writeGeneToVolinPlotFile(basePath, datasetName, geneName) {
+    writeViolinBinFile(basePath, datasetName, geneName) {
         const worker = ViolinBinWorker.getInstance(),
             outPath = files.getPath(basePath, geneName, datasetName, env.VIOLIN_BIN_FILENAME);
 

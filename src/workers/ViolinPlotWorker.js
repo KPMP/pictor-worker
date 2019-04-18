@@ -107,7 +107,7 @@ class ViolinPlotWorker {
 
                 log.info('... Parsed ' + readCountCt + ' reads for ' + gene + '; max: ' + maxReadCount);
 
-                worker.writeToGeneDatasetFile(
+                worker.writeViolinPlotFile(
                     outputRows,
                     outPath,
                     gene,
@@ -152,7 +152,7 @@ class ViolinPlotWorker {
         });
     }
 
-    writeToGeneDatasetFile(rows, basePath, geneName, datasetName) {
+    writeViolinPlotFile(rows, basePath, geneName, datasetName) {
         const outPath = files.getPath(basePath, geneName, datasetName, env.VIOLIN_PLOT_FILENAME);
         files.getStreamWriter(outPath, (os, isNew) => {
             isNew && os.write(env.VIOLIN_PLOT_HEADER + env.ROW_DELIM);
