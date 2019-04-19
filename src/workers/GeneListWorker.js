@@ -19,7 +19,8 @@ class GeneListWorker {
 
     clearData() {
         this.result = {
-            genes: []
+            genes: [],
+            genesByDataset: []
         };
 
         return this;
@@ -29,22 +30,41 @@ class GeneListWorker {
         return new Promise((res, rej) => {
             const worker = GeneListWorker.getInstance();
             const inPath = env.DST_DIR + env.PATH_DELIM + env.GENE_LIST_FILENAME;
+
             if(fs.existsSync(inPath)) {
-                worker.result.genes = JSON.parse(fs.readFileSync(inPath, 'utf8')).genes;
+                worker.result = JSON.parse(fs.readFileSync(inPath, 'utf8'));
             }
 
             else {
                 log.info('+++ No gene file exists at ' + inPath + '; skipping');
-                res();
             }
+
+            res();
         });
     }
 
     putGenes(genes) {
         const worker = GeneListWorker.getInstance();
+        let datasetIndex = worker.result.genesByDataset.findIndex((datasetGenes) => datasetGenes.dataset === env.DATASET_NAME);
+        if(datasetIndex === -1) {
+            worker.result.genesByDataset.push({
+                dataset: env.DATASET_NAME,
+                genes: [ ]
+            });
+
+            datasetIndex = worker.result.genesByDataset.length - 1;
+        }
+
         _.forEach(genes, (gene) => {
-            if(gene && gene.length > 0 && worker.result.genes.indexOf(gene) === -1) {
-                worker.result.genes.push(gene);
+            if(gene && gene.length > 0) {
+
+                if(worker.result.genes.indexOf(gene) === -1) {
+                    worker.result.genes.push(gene);
+                }
+
+                if(worker.result.genesByDataset[datasetIndex].genes.indexOf(gene) === -1) {
+                    worker.result.genesByDataset[datasetIndex].genes.push(gene);
+                }
             }
         });
     }
@@ -53,11 +73,18 @@ class GeneListWorker {
         const worker = GeneListWorker.getInstance();
         const outPath = env.DST_DIR + env.PATH_DELIM + env.GENE_LIST_FILENAME;
         log.info('+++ GeneListWorker.writeGenes');
-        log.info(worker.result);
+
+        if(env.DEBUGGING) {
+            log.debug(worker.result);
+            log.debug('+++ counts by dataset: ');
+            _.forEach(worker.result.genesByDataset, (datasetGenes) => {
+                log.debug('... ' + datasetGenes.dataset + ': ' + datasetGenes.genes.length);
+            });
+        }
+
         return files.getStreamWriter(outPath, (os) => {
-            let genes = worker.result.genes;
-            genes.sort();
-            os.write(JSON.stringify({genes: genes}, null, 4));
+            worker.result.genes.sort();
+            os.write(JSON.stringify(worker.result, null, 4));
         });
     }
 }
