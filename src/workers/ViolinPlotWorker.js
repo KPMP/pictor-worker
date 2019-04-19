@@ -4,6 +4,7 @@ const log = require('../util/log');
 const files = require('../util/files');
 const seedrandom = require('seedrandom');
 const ViolinBinWorker = require('./ViolinBinWorker').ViolinBinWorker;
+const DownloadFileWorker = require('./DownloadFileWorker').DownloadFileWorker;
 
 const rng = seedrandom(env.VIOLIN_PLOT_JITTER_SEED);
 
@@ -99,6 +100,7 @@ class ViolinPlotWorker {
             if(!skip && gene && gene.length > 0) {
 
                 log.info('... Parsed ' + readCountCt + ' reads for ' + gene + '; max: ' + maxReadCount);
+                worker.result.readCountRowCt++;
 
                 worker.writeViolinPlotFile(
                     outputRows,
@@ -106,8 +108,6 @@ class ViolinPlotWorker {
                     gene,
                     datasetName
                 );
-
-                worker.result.readCountRowCt++;
 
                 ViolinBinWorker
                     .getInstance()
@@ -117,6 +117,10 @@ class ViolinPlotWorker {
                         gene,
                         datasetName
                     );
+
+                DownloadFileWorker
+                    .getInstance()
+                    .appendToDownloadFile(outputRows);
             }
         });
     }
