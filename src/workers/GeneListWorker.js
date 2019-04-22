@@ -19,49 +19,72 @@ class GeneListWorker {
 
     clearData() {
         this.result = {
-            genes: []
+            genes: [],
+            genesByDataset: []
         };
 
         return this;
     }
 
     loadGenes() {
-        const inPath = env.DST_DIR + env.PATH_DELIM + env.GENE_LIST_FILENAME;
-        if(fs.existsSync(inPath)) {
-            return files.streamRead("LoadGenes", inPath, (line) => {
-                if(line === env.GENE_LIST_HEADER) {
-                    return;
-                }
+        return new Promise((res, rej) => {
+            const worker = GeneListWorker.getInstance();
+            const inPath = env.DST_DIR + env.PATH_DELIM + env.GENE_LIST_FILENAME;
 
-                GeneListWorker.getInstance().putGenes([line]);
-            });
-        }
+            if(fs.existsSync(inPath)) {
+                worker.result = JSON.parse(fs.readFileSync(inPath, 'utf8'));
+            }
 
-        else {
-            log.info('+++ No gene file exists at ' + inPath + '; skipping');
-            return new Promise((res, rej) => res());
-        }
+            else {
+                log.info('+++ No gene file exists at ' + inPath + '; skipping');
+            }
+
+            res();
+        });
     }
 
     putGenes(genes) {
         const worker = GeneListWorker.getInstance();
+        let datasetIndex = worker.result.genesByDataset.findIndex((datasetGenes) => datasetGenes.dataset === env.DATASET_NAME);
+        if(datasetIndex === -1) {
+            worker.result.genesByDataset.push({
+                dataset: env.DATASET_NAME,
+                genes: [ ]
+            });
+
+            datasetIndex = worker.result.genesByDataset.length - 1;
+        }
+
         _.forEach(genes, (gene) => {
-            if(gene && gene.length > 0 && worker.result.genes.indexOf(gene) === -1) {
-                worker.result.genes.push(gene);
+            if(gene && gene.length > 0) {
+
+                if(worker.result.genes.indexOf(gene) === -1) {
+                    worker.result.genes.push(gene);
+                }
+
+                if(worker.result.genesByDataset[datasetIndex].genes.indexOf(gene) === -1) {
+                    worker.result.genesByDataset[datasetIndex].genes.push(gene);
+                }
             }
         });
     }
 
     writeGenes() {
+        const worker = GeneListWorker.getInstance();
         const outPath = env.DST_DIR + env.PATH_DELIM + env.GENE_LIST_FILENAME;
-        return files.getStreamWriter(outPath, (os) => {
-            const worker = GeneListWorker.getInstance();
-            let genes = worker.result.genes;
-            genes.sort();
-            os.write(env.GENE_LIST_HEADER + env.ROW_DELIM);
-            _.forEach(genes, (gene) => {
-                os.write(gene + env.ROW_DELIM);
+        log.info('+++ GeneListWorker.writeGenes');
+
+        if(env.DEBUGGING) {
+            log.debug(worker.result);
+            log.debug('+++ counts by dataset: ');
+            _.forEach(worker.result.genesByDataset, (datasetGenes) => {
+                log.debug('... ' + datasetGenes.dataset + ': ' + datasetGenes.genes.length);
             });
+        }
+
+        return files.getStreamWriter(outPath, (os) => {
+            worker.result.genes.sort();
+            os.write(JSON.stringify(worker.result, null, 4));
         });
     }
 }

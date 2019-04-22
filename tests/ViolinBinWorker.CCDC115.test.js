@@ -1,19 +1,25 @@
+const env = require('../src/util/env');
 const ViolinBinChecker = require('../src/checkers/ViolinBinChecker').ViolinBinChecker,
     checker = ViolinBinChecker.getInstance();
 
-const TEST_PATH = "./tests/data";
-const VIOLIN_PLOT_FILE = "SCRNA-SEQ_violinPlot.csv";
-const VIOLIN_PLOT_BIN_FILE = "SCRNA-SEQ_violinPlotBins.csv";
+const BASE_DIR = env.VIOLIN_BIN_CHECKER_BASE_DIR + "/C/CCDC115/";
+const VIOLIN_PLOT_FILE = env.DATASET_NAME + "_" + env.VIOLIN_PLOT_FILENAME + ".csv";
+const VIOLIN_PLOT_BIN_FILE = env.DATASET_NAME + "_" + env.VIOLIN_BIN_FILENAME + ".csv";
 
 beforeAll(() => {
     return ViolinBinChecker
         .getInstance()
         .clearData()
         .loadData(
-            TEST_PATH + "/CCDC115/" + VIOLIN_PLOT_FILE,
-            TEST_PATH + "/CCDC115/" + VIOLIN_PLOT_BIN_FILE
+            BASE_DIR + VIOLIN_PLOT_FILE,
+            BASE_DIR + VIOLIN_PLOT_BIN_FILE
         )
-        .then(() => checker.checkData());
+        .then(() => checker.checkData())
+        .catch((err) => {
+            console.error(err);
+            console.log('+++ Tried loading plot file: ' + BASE_DIR + VIOLIN_PLOT_FILE);
+            console.log('+++ Tried loading bin file: ' + BASE_DIR + VIOLIN_BIN_FILE);
+        });;
 });
 
 afterAll(() => {
@@ -24,8 +30,3 @@ describe('Violin Bin Worker, check CCDC115 bins against plot rows', () => {
     it('Expect row count to equal bin sums', () => expect(checker.result.rowCt).toBe(checker.result.binSum));
     it('Expect cumulative cluster read count difference to be 0', () => expect(checker.result.clusterReadCountCumulativeDiff).toBe(0));
 });
-
-// This verifies that tests are being run and working as intended
-// describe('Violin Bin Worker, failure checks', () => {
-//     it('Expect row count to be higher by 10', () => expect(checker.result.rowCt + 10).toBe(checker.result.binSum));
-// });

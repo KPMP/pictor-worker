@@ -25,7 +25,6 @@ class ViolinPlotWorker {
         this.result = {
             startTime: Date.now(),
             barcodeMap: {},
-            clusterLegend: {},
             readCountHeader: [],
             barcodeCt: 0,
             readCountRowCt: 0,
@@ -44,12 +43,6 @@ class ViolinPlotWorker {
 
             if (row && row.length) {
                 worker.result.barcodeMap[cell] = cluster;
-
-                worker.result.clusterLegend[cluster] =
-                    worker.result.clusterLegend[cluster] ||
-                    0;
-
-                worker.result.clusterLegend[cluster]++;
                 worker.result.barcodeCt++;
             }
         });
@@ -107,7 +100,7 @@ class ViolinPlotWorker {
 
                 log.info('... Parsed ' + readCountCt + ' reads for ' + gene + '; max: ' + maxReadCount);
 
-                worker.writeToGeneDatasetFile(
+                worker.writeViolinPlotFile(
                     outputRows,
                     outPath,
                     gene,
@@ -128,31 +121,7 @@ class ViolinPlotWorker {
         });
     }
 
-    writeLegend(datasetName, outDir) {
-        return new Promise((resolve, reject) => {
-            log.debug('... writeLegend');
-
-            const worker = ViolinPlotWorker.getInstance(),
-                outPath = [outDir, datasetName + "_" + env.LEGEND_FILENAME].join(env.PATH_DELIM) + (env.OUT_DELIM === "," ? ".csv" : ".txt");
-
-            files.getStreamWriter(outPath, (os) => {
-                let clusters = Object.keys(worker.result.clusterLegend);
-                clusters.sort((a, b) => parseInt(a) - parseInt(b));
-
-                os.write(env.LEGEND_HEADER + env.ROW_DELIM);
-
-                _.forEach(clusters, (cluster) => {
-                    os.write(datasetName + env.OUT_DELIM +
-                        cluster + env.OUT_DELIM +
-                        worker.result.clusterLegend[cluster] + env.OUT_DELIM + env.ROW_DELIM);
-                });
-
-                resolve();
-            });
-        });
-    }
-
-    writeToGeneDatasetFile(rows, basePath, geneName, datasetName) {
+    writeViolinPlotFile(rows, basePath, geneName, datasetName) {
         const outPath = files.getPath(basePath, geneName, datasetName, env.VIOLIN_PLOT_FILENAME);
         files.getStreamWriter(outPath, (os, isNew) => {
             isNew && os.write(env.VIOLIN_PLOT_HEADER + env.ROW_DELIM);

@@ -69,10 +69,6 @@ class ViolinBinChecker {
                 readCt = parseFloat(files.sanitize(row[3])),
                 boostedBandLimitedReadCt = readCt - (readCt % env.VIOLIN_BIN_BANDWIDTH) + env.VIOLIN_BIN_BANDWIDTH;
 
-            if (readCt - boostedBandLimitedReadCt !== 0) {
-                log.debug('+++ readCt, boostedBandLimitedReadCt: ' + readCt + ', ' + boostedBandLimitedReadCt);
-            }
-
             checker.result.rowCt++;
             checker.result.plotClusterReadCountSums[cluster] = checker.result.plotClusterReadCountSums[cluster] || 0;
             checker.result.plotClusterReadCountSums[cluster] += boostedBandLimitedReadCt;
