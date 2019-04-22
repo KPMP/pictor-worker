@@ -3,9 +3,9 @@ const env = require('../util/env');
 const files = require('../util/files');
 const log = require('../util/log');
 
-const SCRNA_SEQ = 'SCRNA_SEQ',
-    MDSCRNA_SEQ = 'MDSCRNA_SEQ',
-    SNDROP_SEQ = 'SNDROP_SEQ',
+const SCRNA_SEQ = 'SCRNA-SEQ',
+    MDSCRNA_SEQ = 'MDSCRNA-SEQ',
+    SNDROP_SEQ = 'SNDROP-SEQ',
     STRUCTURE = 'STRUCTURE',
     CELL_TYPE = 'CELL_TYPE',
     MASTER_CLUSTER_ID = 'MASTER_CLUSTER_ID';
@@ -35,6 +35,11 @@ class LegendWorker {
         };
 
         return this;
+    }
+
+    getMasterClusterName(clusterId) {
+        const cluster = this.result.masterClusters[clusterId];
+        return cluster ? cluster.cellType : "cluster-not-found";
     }
 
     loadClusterMap() {

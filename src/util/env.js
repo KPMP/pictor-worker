@@ -63,3 +63,6 @@ module.exports.VIOLIN_PLOT_CHECKER_SCRIPT_OUTPUT_FILE = process.env.VIOLIN_PLOT_
 module.exports.VIOLIN_PLOT_CHECKER_CHECK_FILE = process.env.VIOLIN_PLOT_CHECKER_CHECK_FILE || undefined;
 module.exports.VIOLIN_BIN_CHECKER_BASE_DIR = process.env.VIOLIN_BIN_CHECKER_BASE_DIR || undefined;
 module.exports.CLUSTER_MAP_HEADER = process.env.CLUSTER_MAP_HEADER || 'structure,cell_type,master_cluster_ID,SNDROP_SEQ,MDSCRNA_SEQ,SCRNA_SEQ';
+module.exports.DOWNLOAD_FILENAME = process.env.DOWNLOAD_FILENAME || '_expression_';
+module.exports.DOWNLOAD_MOMENT_FORMAT = process.env.DOWNLOAD_MOMENT_FORMAT || 'YYYYMMDD';
+module.exports.DOWNLOAD_FILE_HEADER = process.env.DOWNLOAD_FILE_HEADER || 'dataset,barcode,cluster_id,cluster_name,gene,normalized_expression_value';
