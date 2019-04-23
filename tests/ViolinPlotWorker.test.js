@@ -6,7 +6,8 @@ beforeAll(() => {
         .getInstance()
         .clearData()
         .loadData()
-        .then(() => checker.checkData());
+        .then(() => checker.checkData())
+        .catch((error) => console.error(error));
 });
 
 afterAll(() => {

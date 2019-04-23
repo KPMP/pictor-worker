@@ -4,7 +4,7 @@ const ViolinBinChecker = require('../src/checkers/ViolinBinChecker').ViolinBinCh
 
 const BASE_DIR = env.VIOLIN_BIN_CHECKER_BASE_DIR + "/C/CCDC115/";
 const VIOLIN_PLOT_FILE = env.DATASET_NAME + "_" + env.VIOLIN_PLOT_FILENAME + ".csv";
-const VIOLIN_PLOT_BIN_FILE = env.DATASET_NAME + "_" + env.VIOLIN_BIN_FILENAME + ".csv";
+const VIOLIN_BIN_FILE = env.DATASET_NAME + "_" + env.VIOLIN_BIN_FILENAME + ".csv";
 
 beforeAll(() => {
     return ViolinBinChecker
@@ -12,7 +12,7 @@ beforeAll(() => {
         .clearData()
         .loadData(
             BASE_DIR + VIOLIN_PLOT_FILE,
-            BASE_DIR + VIOLIN_PLOT_BIN_FILE
+            BASE_DIR + VIOLIN_BIN_FILE
         )
         .then(() => checker.checkData())
         .catch((err) => {

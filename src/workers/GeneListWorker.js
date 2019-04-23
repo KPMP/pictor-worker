@@ -45,6 +45,11 @@ class GeneListWorker {
 
     putGenes(genes) {
         const worker = GeneListWorker.getInstance();
+        if(!worker.result.genesByDataset) {
+            log.info('!!! GeneListWorker.putGenes(): genesByDataset is falsey; skipping');
+            return;
+        }
+
         let datasetIndex = worker.result.genesByDataset.findIndex((datasetGenes) => datasetGenes.dataset === env.DATASET_NAME);
         if(datasetIndex === -1) {
             worker.result.genesByDataset.push({

@@ -1,7 +1,5 @@
 const env = require('../util/env');
 const files = require('../util/files');
-const moment = require('moment');
-const log = require('../util/log');
 const LegendWorker = require('./LegendWorker').LegendWorker;
 const _ = require('lodash');
 
@@ -20,8 +18,7 @@ class DownloadFileWorker {
 
     appendToDownloadFile(rows) {
         return files.getStreamWriter(files.getPath(
-            env.DST_DIR, rows[1][1], rows[1][1],
-            env.DOWNLOAD_FILENAME + '_' + moment().format(env.DOWNLOAD_MOMENT_FORMAT)),
+            env.DST_DIR, rows[1][1], rows[1][1], env.DOWNLOAD_FILENAME),
             (os, isNew) => {
                 const legendWorker = LegendWorker.getInstance();
 
@@ -30,15 +27,16 @@ class DownloadFileWorker {
                 }
 
                 //Download file column order:
-                //dataset,barcode,cluster_id,cluster_name,gene,normalized_expression_value
+                //dataset,barcode,cluster_id,rollup_id,rollup_type,gene,normalized_expression_value
 
                 //Gene row column order:
-                //cellname,gene,cluster,readcount
+                //cell, gene, clusterId, rollupId, readCount
 
                 _.forEach(rows, (row) => {
                     os.write([env.DATASET_NAME, row[0], row[2],
-                        legendWorker.getMasterClusterName(row[2]),
-                        row[1], row[3]].join(env.OUT_DELIM) + env.ROW_DELIM);
+                        legendWorker.getRollupId(row[2]),
+                        legendWorker.getRollupType(row[2]),
+                        row[1], row[4]].join(env.OUT_DELIM) + env.ROW_DELIM);
                 });
 
             }, true); // appendMode = true

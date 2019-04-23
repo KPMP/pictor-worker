@@ -7,8 +7,10 @@ const SCRNA_SEQ = 'SCRNA-SEQ',
     MDSCRNA_SEQ = 'MDSCRNA-SEQ',
     SNDROP_SEQ = 'SNDROP-SEQ',
     STRUCTURE = 'STRUCTURE',
-    CELL_TYPE = 'CELL_TYPE',
-    MASTER_CLUSTER_ID = 'MASTER_CLUSTER_ID';
+    ROLLUP_ID = 'ROLLUP_ID',
+    ROLLUP_TYPE = 'ROLLUP_TYPE',
+    CLUSTER_TYPE = 'CLUSTER_TYPE',
+    CLUSTER_ID = 'CLUSTER_ID';
 
 class LegendWorker {
     constructor() {
@@ -26,20 +28,36 @@ class LegendWorker {
     clearData() {
         this.result = {
             clusterMapIndexes: {},
-            masterClusters: {},
+            clusters: {},
             datasetClusters: {
-                SCRNA_SEQ: {},
-                MDSCRNA_SEQ: {},
-                SNDROP_SEQ: {}
+                'SCRNA-SEQ': {},
+                'MDSCRNA-SEQ': {},
+                'SNDROP-SEQ': {}
             }
         };
 
         return this;
     }
 
-    getMasterClusterName(clusterId) {
-        const cluster = this.result.masterClusters[clusterId];
-        return cluster ? cluster.cellType : "cluster-not-found";
+    getClusterIdFromDatasetClusterId(datasetClusterId) {
+        const dataset = this.result.datasetClusters[env.DATASET_NAME],
+            datasetCluster = dataset ? dataset[datasetClusterId] : null;
+        return datasetCluster ? datasetCluster.clusterId : -1;
+    }
+
+    getClusterType(clusterId) {
+        const cluster = this.result.clusters[clusterId];
+        return cluster ? cluster.clusterType : "NA";
+    }
+
+    getRollupId(clusterId) {
+        const cluster = this.result.clusters[clusterId];
+        return cluster ? cluster.rollupId : -1;
+    }
+
+    getRollupType(clusterId) {
+        const cluster = this.result.clusters[clusterId];
+        return cluster ? cluster.rollupType : "NA";
     }
 
     loadClusterMap() {
@@ -52,31 +70,38 @@ class LegendWorker {
                 //If this is the header, find indexes of columns for mapping
                 if(row.indexOf(STRUCTURE) > -1) {
                     worker.result.clusterMapIndexes.STRUCTURE = row.indexOf(STRUCTURE);
-                    worker.result.clusterMapIndexes.CELL_TYPE = row.indexOf(CELL_TYPE);
-                    worker.result.clusterMapIndexes.MASTER_CLUSTER_ID = row.indexOf(MASTER_CLUSTER_ID);
-                    worker.result.clusterMapIndexes.SCRNA_SEQ = row.indexOf(SCRNA_SEQ);
-                    worker.result.clusterMapIndexes.MDSCRNA_SEQ = row.indexOf(MDSCRNA_SEQ);
-                    worker.result.clusterMapIndexes.SNDROP_SEQ = row.indexOf(SNDROP_SEQ);
+                    worker.result.clusterMapIndexes.ROLLUP_TYPE = row.indexOf(ROLLUP_TYPE);
+                    worker.result.clusterMapIndexes.ROLLUP_ID = row.indexOf(ROLLUP_ID);
+                    worker.result.clusterMapIndexes.CLUSTER_TYPE = row.indexOf(CLUSTER_TYPE);
+                    worker.result.clusterMapIndexes.CLUSTER_ID = row.indexOf(CLUSTER_ID);
+                    worker.result.clusterMapIndexes[SCRNA_SEQ] = row.indexOf(SCRNA_SEQ);
+                    worker.result.clusterMapIndexes[SNDROP_SEQ] = row.indexOf(SNDROP_SEQ);
+                    worker.result.clusterMapIndexes[MDSCRNA_SEQ] = row.indexOf(MDSCRNA_SEQ);
+
+                    log.debug(worker.result.clusterMapIndexes);
+
                     return;
                 }
 
                 const indexes = worker.result.clusterMapIndexes,
                     structure = row[indexes.STRUCTURE],
-                    cellType = row[indexes.CELL_TYPE],
-                    masterClusterId = row[indexes.MASTER_CLUSTER_ID],
-                    scrnaSeqId = row[indexes.SCRNA_SEQ],
-                    mdscrnaSeqId = row[indexes.MDSCRNA_SEQ],
-                    sndropSeqId = row[indexes.SNDROP_SEQ],
-                    clusterRow = {structure, cellType, masterClusterId};
+                    clusterType = row[indexes.CLUSTER_TYPE],
+                    clusterId = row[indexes.CLUSTER_ID],
+                    rollupType = row[indexes.ROLLUP_TYPE],
+                    rollupId = row[indexes.ROLLUP_ID],
+                    scrnaSeqId = row[indexes[SCRNA_SEQ]],
+                    mdscrnaSeqId = row[indexes[MDSCRNA_SEQ]],
+                    sndropSeqId = row[indexes[SNDROP_SEQ]],
+                    clusterRow = {structure, rollupType, rollupId, clusterType, clusterId};
 
-                if(!masterClusterId) {
+                if(!clusterId) {
                     return;
                 }
 
-                worker.result.datasetClusters.SCRNA_SEQ[scrnaSeqId] =
-                    worker.result.datasetClusters.MDSCRNA_SEQ[mdscrnaSeqId] =
-                    worker.result.datasetClusters.SNDROP_SEQ[sndropSeqId] =
-                    worker.result.masterClusters[masterClusterId] = clusterRow;
+                worker.result.datasetClusters[SCRNA_SEQ][scrnaSeqId] =
+                    worker.result.datasetClusters[MDSCRNA_SEQ][mdscrnaSeqId] =
+                    worker.result.datasetClusters[SNDROP_SEQ][sndropSeqId] =
+                    worker.result.clusters[clusterId] = clusterRow;
             });
         }
 
@@ -94,7 +119,7 @@ class LegendWorker {
         log.debug(worker.result);
         return files.getStreamWriter(outPath, (os) => {
             os.write(JSON.stringify({
-                masterClusters: worker.result.masterClusters,
+                clusters: worker.result.clusters,
                 datasetClusters: worker.result.datasetClusters
             }, null, 4));
         });

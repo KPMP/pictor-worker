@@ -77,9 +77,10 @@ class ViolinPlotChecker {
                     // Map each barcode to its decoded cluster and read count
                     const barcode = files.sanitize(row[0]),
                         cluster = files.sanitize(row[2]),
-                        readCount = files.sanitize(row[3]);
+                        rollup = files.sanitize(row[3]),
+                        readCount = files.sanitize(row[4]);
 
-                    checker.data.scriptFileReads[barcode] = {barcode, cluster, readCount};
+                    checker.data.scriptFileReads[barcode] = {barcode, cluster, rollup, readCount};
                 })
             });
     }
