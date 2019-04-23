@@ -40,35 +40,34 @@ class LegendWorker {
     }
 
     getDatasetClusterIdFromClusterId(datasetName, clusterId) {
-        const dataset = this.result.datasetClusters[datasetName];
+        const worker = LegendWorker.getInstance(),
+            dataset = worker.result.datasetClusters[datasetName];
 
         if(!dataset) {
             log.info('!!! no dataset cluster ID found with datasetName, clusterId: ' + datasetName + ', ' + clusterId);
             return -1;
         }
 
-        const datasetClusterEntry = Object.entries(dataset).filter((entry) => entry[1].clusterId === clusterId);
+        const datasetClusterEntry = Object.entries(dataset).filter((entry) => entry[1].clusterId === clusterId)[0];
         return datasetClusterEntry ? datasetClusterEntry[0] : -1;
     }
 
     getClusterIdFromDatasetClusterId(datasetClusterId) {
-        const dataset = this.result.datasetClusters[env.DATASET_NAME],
+        const worker = LegendWorker.getInstance(),
+            dataset = worker.result.datasetClusters[env.DATASET_NAME],
             datasetCluster = dataset ? dataset[datasetClusterId] : null;
         return datasetCluster ? datasetCluster.clusterId : -1;
     }
 
-    getClusterType(clusterId) {
-        const cluster = this.result.clusters[clusterId];
-        return cluster ? cluster.clusterType : "NA";
-    }
-
     getRollupId(clusterId) {
-        const cluster = this.result.clusters[clusterId];
+        const worker = LegendWorker.getInstance(),
+            cluster = worker.result.clusters[clusterId];
         return cluster ? cluster.rollupId : -1;
     }
 
     getRollupType(clusterId) {
-        const cluster = this.result.clusters[clusterId];
+        const worker = LegendWorker.getInstance(),
+            cluster = worker.result.clusters[clusterId];
         return cluster ? cluster.rollupType : "NA";
     }
 

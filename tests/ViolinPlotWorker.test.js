@@ -1,11 +1,16 @@
 const ViolinPlotChecker = require('../src/checkers/ViolinPlotChecker').ViolinPlotChecker,
+    LegendWorker = require('../src/workers/LegendWorker').LegendWorker,
     checker = ViolinPlotChecker.getInstance();
 
 beforeAll(() => {
-    return ViolinPlotChecker
+    return LegendWorker
         .getInstance()
         .clearData()
-        .loadData()
+        .loadClusterMap()
+        .then(() => ViolinPlotChecker
+            .getInstance()
+            .clearData()
+            .loadData())
         .then(() => checker.checkData())
         .catch((error) => console.error(error));
 });

@@ -87,7 +87,6 @@ class ViolinPlotChecker {
                             env.VIOLIN_PLOT_CHECKER_CHECK_DATASET, cluster);
 
                     checker.data.scriptFileReads[barcode] = {barcode, cluster, rollup, datasetCluster, readCount};
-                    log.info('barcode, cluster ID, dataset cluster ID: ' + barcode + ', ' + cluster + ', ' + datasetCluster);
                 })
             });
     }
@@ -118,15 +117,15 @@ class ViolinPlotChecker {
         checker.result.checkFileUnmappedBarcodes = checkFileKeys.filter((barcode) => barcodeMapKeys.indexOf(barcode) === -1);
 
         _.forEach(scriptFileKeys, (barcode) => {
-            let clusterDist = checker.result.clusterDistributions[checker.data.scriptFileReads[barcode].cluster] ||
+            let clusterDist = checker.result.clusterDistributions[checker.data.scriptFileReads[barcode].datasetCluster] ||
                 {"scriptCt": 0, "checkCt": 0, "barcodeMapCt": 0},
-                clusterSum = checker.result.clusterSums[checker.data.scriptFileReads[barcode].cluster] ||
+                clusterSum = checker.result.clusterSums[checker.data.scriptFileReads[barcode].datasetCluster] ||
                     {"scriptSum": 0, "checkSum": 0};
 
             clusterDist.scriptCt++;
             clusterSum.scriptSum += parseFloat(checker.data.scriptFileReads[barcode].readCount);
-            checker.result.clusterDistributions[checker.data.scriptFileReads[barcode].cluster] = clusterDist;
-            checker.result.clusterSums[checker.data.scriptFileReads[barcode].cluster] = clusterSum;
+            checker.result.clusterDistributions[checker.data.scriptFileReads[barcode].datasetCluster] = clusterDist;
+            checker.result.clusterSums[checker.data.scriptFileReads[barcode].datasetCluster] = clusterSum;
         });
 
         _.forEach(checkFileKeys, (barcode) => {
