@@ -30,7 +30,8 @@ class ViolinPlotWorker {
             readCountHeader: [],
             barcodeCt: 0,
             readCountRowCt: 0,
-            unmatchedBarcodes: []
+            unmatchedBarcodes: [],
+            unmappedToRollupBarcodes: []
         }
 
         return this;
@@ -86,14 +87,22 @@ class ViolinPlotWorker {
                         log.debug('!!! Error: No cluster found for gene/cell ' + gene + '/' + cell + '; skipping');
                         worker.result.unmatchedBarcodes.push(cell);
                     }
-
                     return;
                 }
 
                 let readCount = worker.jitter(parseFloat(files.sanitize(col))),
                     clusterId = legendWorker.getClusterIdFromDatasetClusterId(datasetClusterId),
-                    rollupId = legendWorker.getRollupId(clusterId),
-                    row = [ cell, gene, clusterId, rollupId, readCount ];
+                    rollupId = legendWorker.getRollupId(clusterId);
+
+                if(rollupId === -1) {
+                    if (worker.result.unmappedToRollupBarcodes.indexOf(cell) === -1) {
+                        log.debug('!!! Warning: No rollup found for gene/cell ' + gene + '/' + cell + '; skipping');
+                        worker.result.unmappedToRollupBarcodes.push(cell);
+                    }
+                    return;
+                }
+
+                let row = [ cell, gene, clusterId, rollupId, readCount ];
                     maxReadCount = Math.max(maxReadCount, readCount);
 
                 readCountCt++;
