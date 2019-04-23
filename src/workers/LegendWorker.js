@@ -39,6 +39,18 @@ class LegendWorker {
         return this;
     }
 
+    getDatasetClusterIdFromClusterId(datasetName, clusterId) {
+        const dataset = this.result.datasetClusters[datasetName];
+
+        if(!dataset) {
+            log.info('!!! no dataset cluster ID found with datasetName, clusterId: ' + datasetName + ', ' + clusterId);
+            return -1;
+        }
+
+        const datasetClusterEntry = Object.entries(dataset).filter((entry) => entry[1].clusterId === clusterId);
+        return datasetClusterEntry ? datasetClusterEntry[0] : -1;
+    }
+
     getClusterIdFromDatasetClusterId(datasetClusterId) {
         const dataset = this.result.datasetClusters[env.DATASET_NAME],
             datasetCluster = dataset ? dataset[datasetClusterId] : null;
