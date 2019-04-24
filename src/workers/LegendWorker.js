@@ -71,6 +71,17 @@ class LegendWorker {
         return cluster ? cluster.rollupType : "NA";
     }
 
+    getRollups() {
+        const worker = LegendWorker.getInstance(),
+            rollups = {};
+
+        Object.values(worker.result.clusters).forEach((cluster) => {
+            return rollups[cluster.rollupId] = { rollupId: cluster.rollupId, rollupType: cluster.rollupType, structure: cluster.structure }
+        });
+
+        return rollups;
+    }
+
     loadClusterMap() {
         if(fs.existsSync(env.CLUSTER_MAP_FILE)) {
             log.debug('+++ LegendWorker.loadClusterMap');
@@ -130,6 +141,7 @@ class LegendWorker {
         log.debug(worker.result);
         return files.getStreamWriter(outPath, (os) => {
             os.write(JSON.stringify({
+                rollups: worker.getRollups(),
                 clusters: worker.result.clusters,
                 datasetClusters: worker.result.datasetClusters
             }, null, 4));

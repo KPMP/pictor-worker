@@ -30,7 +30,8 @@ class ViolinPlotWorker {
             readCountHeader: [],
             barcodeCt: 0,
             readCountRowCt: 0,
-            unmatchedBarcodes: []
+            unmatchedBarcodes: [],
+            unmappedToRollupBarcodes: []
         }
 
         return this;
@@ -86,14 +87,22 @@ class ViolinPlotWorker {
                         log.debug('!!! Error: No cluster found for gene/cell ' + gene + '/' + cell + '; skipping');
                         worker.result.unmatchedBarcodes.push(cell);
                     }
-
                     return;
                 }
 
                 let readCount = worker.jitter(parseFloat(files.sanitize(col))),
                     clusterId = legendWorker.getClusterIdFromDatasetClusterId(datasetClusterId),
-                    rollupId = legendWorker.getRollupId(clusterId),
-                    row = [ cell, gene, clusterId, rollupId, readCount ];
+                    rollupId = legendWorker.getRollupId(clusterId);
+
+                if(rollupId === -1) {
+                    if (worker.result.unmappedToRollupBarcodes.indexOf(cell) === -1) {
+                        log.debug('!!! Warning: No rollup found for gene/cell ' + gene + '/' + cell + '; skipping');
+                        worker.result.unmappedToRollupBarcodes.push(cell);
+                    }
+                    return;
+                }
+
+                let row = [ cell, gene, clusterId, rollupId, readCount ];
                     maxReadCount = Math.max(maxReadCount, readCount);
 
                 readCountCt++;
@@ -146,11 +155,18 @@ class ViolinPlotWorker {
             log.info('Read count row ct: ' + worker.result.readCountRowCt);
             log.info('Runtime: ' + ((Date.now() - this.result.startTime) / 1000) + "s");
             log.info('Unmatched barcode ct: ' + this.result.unmatchedBarcodes.length);
+            log.info('Barcodes unmapped to a rollup ct: ' + this.result.unmappedToRollupBarcodes.length);
 
             files.getStreamWriter(env.LOG_DIR + env.PATH_DELIM + env.LOG_UNMATCHED_BARCODE_FILE, (os) => {
                 os.write(env.LOG_UNMATCHED_BARCODE_HEADER + env.ROW_DELIM);
                 os.write(worker.result.unmatchedBarcodes.join(env.ROW_DELIM));
             });
+
+            files.getStreamWriter(env.LOG_DIR + env.PATH_DELIM + env.LOG_UNMAPPED_ROLLUP_BARCODE_FILE, (os) => {
+                os.write(env.LOG_UNMAPPED_ROLLUP_BARCODE_HEADER + env.ROW_DELIM);
+                os.write(worker.result.unmappedToRollupBarcodes.join(env.ROW_DELIM));
+            });
+
             resolve();
         });
     }

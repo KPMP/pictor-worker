@@ -6,3 +6,5 @@ public/data/*.csv
 .env
 *.env
 .DS_Store
+tests/data/dst
+run*.sh
