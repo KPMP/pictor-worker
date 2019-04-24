@@ -155,11 +155,18 @@ class ViolinPlotWorker {
             log.info('Read count row ct: ' + worker.result.readCountRowCt);
             log.info('Runtime: ' + ((Date.now() - this.result.startTime) / 1000) + "s");
             log.info('Unmatched barcode ct: ' + this.result.unmatchedBarcodes.length);
+            log.info('Barcodes unmapped to a rollup ct: ' + this.result.unmappedToRollupBarcodes.length);
 
             files.getStreamWriter(env.LOG_DIR + env.PATH_DELIM + env.LOG_UNMATCHED_BARCODE_FILE, (os) => {
                 os.write(env.LOG_UNMATCHED_BARCODE_HEADER + env.ROW_DELIM);
                 os.write(worker.result.unmatchedBarcodes.join(env.ROW_DELIM));
             });
+
+            files.getStreamWriter(env.LOG_DIR + env.PATH_DELIM + env.LOG_UNMAPPED_ROLLUP_BARCODE_FILE, (os) => {
+                os.write(env.LOG_UNMAPPED_ROLLUP_BARCODE_HEADER + env.ROW_DELIM);
+                os.write(worker.result.unmappedToRollupBarcodes.join(env.ROW_DELIM));
+            });
+
             resolve();
         });
     }
