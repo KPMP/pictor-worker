@@ -5,6 +5,7 @@ const files = require('../util/files');
 const seedrandom = require('seedrandom');
 const ViolinBinWorker = require('./ViolinBinWorker').ViolinBinWorker;
 const DownloadFileWorker = require('./DownloadFileWorker').DownloadFileWorker;
+const LegendWorker = require('./LegendWorker').LegendWorker;
 
 const rng = seedrandom(env.VIOLIN_PLOT_JITTER_SEED);
 
@@ -52,6 +53,7 @@ class ViolinPlotWorker {
     processReadCountTable(datasetName, inPath, outPath) {
         return files.streamRead("processReadCountTable", inPath, (line) => {
             const worker = ViolinPlotWorker.getInstance(),
+                legendWorker = LegendWorker.getInstance(),
                 inputCols = line.split(env.IN_DELIM), // this will be factors of 10^4, 10^5 long
                 outputRows = [];
             let gene = null,
@@ -77,11 +79,9 @@ class ViolinPlotWorker {
 
                 let cellHeaderIndex = i - 1,
                     cell = files.sanitize(worker.result.readCountHeader[cellHeaderIndex]),
-                    cluster = files.sanitize(worker.result.barcodeMap[cell]),
-                    readCount = worker.jitter(parseFloat(files.sanitize(col))),
-                    row = [ cell, gene, cluster, readCount ];
+                    datasetClusterId = files.sanitize(worker.result.barcodeMap[cell]);
 
-                if(!cluster) {
+                if(!datasetClusterId) {
                     if (worker.result.unmatchedBarcodes.indexOf(cell) === -1) {
                         log.debug('!!! Error: No cluster found for gene/cell ' + gene + '/' + cell + '; skipping');
                         worker.result.unmatchedBarcodes.push(cell);
@@ -90,7 +90,12 @@ class ViolinPlotWorker {
                     return;
                 }
 
-                maxReadCount = Math.max(maxReadCount, readCount);
+                let readCount = worker.jitter(parseFloat(files.sanitize(col))),
+                    clusterId = legendWorker.getClusterIdFromDatasetClusterId(datasetClusterId),
+                    rollupId = legendWorker.getRollupId(clusterId),
+                    row = [ cell, gene, clusterId, rollupId, readCount ];
+                    maxReadCount = Math.max(maxReadCount, readCount);
+
                 readCountCt++;
 
                 //log.debug(row);

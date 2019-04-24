@@ -76,7 +76,7 @@ class ViolinBinChecker {
 
         // For each violin bin, add to the bin file's cluster sum.
         Object.keys(checker.data.binReads).map((cluster) => {
-            //We take only columns 4 and above, as the first 3 columns are reserved for dataset, gene, and cluster
+            //We take only columns 5 and above, as the first 4 columns are reserved for dataset, gene, and cluster
             const clusterBins = checker.data.binReads[cluster].slice(3);
 
             _.forEach(clusterBins, (binRawCount, i) => {

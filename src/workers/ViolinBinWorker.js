@@ -34,28 +34,28 @@ class ViolinBinWorker {
     calculateBins(geneName, rows) {
         _.forEach(rows, (row) => {
             const worker = ViolinBinWorker.getInstance(),
-                readCt = row[3],
-                cluster = row[2];
+                readCt = row[4],
+                rollupId = row[3];
 
             // log.debug(JSON.stringify(row));
 
-            if (!cluster || cluster.match(/[^0-9]/g)) {
+            if (!rollupId || !Number(rollupId)) {
                 return;
             }
 
             worker.result.genes[geneName] = worker.result.genes[geneName] || { bins: [], counts: [], maxBin: 0};
-            worker.result.genes[geneName].bins[cluster] = worker.result.genes[geneName].bins[cluster] || [];
-            worker.result.genes[geneName].counts[cluster] = worker.result.genes[geneName].counts[cluster] || 0;
-            worker.result.genes[geneName].counts[cluster]++;
+            worker.result.genes[geneName].bins[rollupId] = worker.result.genes[geneName].bins[rollupId] || [];
+            worker.result.genes[geneName].counts[rollupId] = worker.result.genes[geneName].counts[rollupId] || 0;
+            worker.result.genes[geneName].counts[rollupId]++;
 
             let i = 0;
 
             while (true) {
                 let bin = env.VIOLIN_BIN_PREFIX + i;
-                worker.result.genes[geneName].bins[cluster][bin] = worker.result.genes[geneName].bins[cluster][bin] || 0;
+                worker.result.genes[geneName].bins[rollupId][bin] = worker.result.genes[geneName].bins[rollupId][bin] || 0;
 
                 if (readCt - i < env.VIOLIN_BIN_BANDWIDTH) {
-                    worker.result.genes[geneName].bins[cluster][bin]++;
+                    worker.result.genes[geneName].bins[rollupId][bin]++;
                     worker.result.genes[geneName].maxBin = Math.max(worker.result.genes[geneName].maxBin, i);
                     return;
                 }
@@ -80,10 +80,10 @@ class ViolinBinWorker {
             }
 
             let header = env.VIOLIN_BIN_HEADER + bins.join(','),
-                rows = Object.keys(worker.result.genes[geneName].bins).map((cluster) => {
-                return [datasetName, geneName, cluster].join(env.OUT_DELIM) +
+                rows = Object.keys(worker.result.genes[geneName].bins).map((rollupId) => {
+                return [datasetName, geneName, rollupId].join(env.OUT_DELIM) +
                     env.OUT_DELIM + bins.map((bin) => {
-                        let val = worker.result.genes[geneName].bins[cluster][bin];
+                        let val = worker.result.genes[geneName].bins[rollupId][bin];
                         return val ? val : 0;
                     }).join(env.OUT_DELIM);
             });

@@ -1,3 +1,67 @@
-STRUCTURE	CELL_TYPE	MASTER_CLUSTER_ID	SNDROP-SEQ	MDSCRNA-SEQ	SCRNA-SEQ
-Test Glomerulus	Test Glom A	1	2	20	25
-Test Endothelial	Test EC B	2	1	19	24
+STRUCTURE	ROLLUP_TYPE	ROLLUP_ID	CLUSTER_TYPE	CLUSTER_ID	SCRNA-SEQ	SNDROP-SEQ	MDSCRNA-SEQ
+Glomerulus	Parietal Cells	1	Parietal Cells	1	26		
+Glomerulus	Podocytes	2	Podocytes	2	25	2	20
+Glomerulus	Podocytes	2	Podocytes	3			27
+Glomerulus	Endothelial Glomerular Capillaries	3	Endothelial Glomerular Capillaries	4	13	22	
+Glomerulus	Mesangial Cells	4	Mesangial Cells	5		26	11
+Tubules	Proximal Tubules	5	Proximal Tubules (NOS) - 1	6	1		
+Tubules	Proximal Tubules	5	Proximal Tubules (NOS) - 2	7	7		
+Tubules	Proximal Tubules	5	Proximal Tubules (NOS) - 3	8			22
+Tubules	Proximal Tubules	5	Proximal Tubules (NOS) - 4	9			4
+Tubules	Proximal Tubules	5	Proximal Tubules (NOS) - 5	10			5
+Tubules	Proximal Tubules	5	Proximal Tubules (NOS) - 6	11			13
+Tubules	Proximal Tubules	5	Proximal Tubules (NOS) - 7	12			25
+Tubules	Proximal Tubules	5	Proximal Tubules (NOS) - Stress/Inflam	13		5	
+Tubules	Proximal Tubules	5	Proximal Tubules Convoluted - S1	14	4	3	
+Tubules	Proximal Tubules	5	Proximal Tubules Convoluted/Straight - S2	15	2	4	
+Tubules	Proximal Tubules	5	Novel Proximal Tubules CFH+ Subpopulation (S2)	16		29	
+Tubules	Proximal Tubules	5	Proximal Tubules Straight - S3	17	14	7	
+Tubules	Proximal Tubules	5	Proximal Tubules Straight - S3 - Fibrinogen+	18		6	
+Tubules	Loop of Henle	6	Loop of Henle (NOS)	19	23		
+Tubules	Loop of Henle	6	Descending Thin Limb (NOS)	20	3	8	
+Tubules	Loop of Henle	6	Ascending Thin Limb - 1	24		9	
+Tubules	Loop of Henle	6	Ascending Thin Limb - 2	25		10	
+Tubules	Loop of Henle	6	Ascending Thin Limb - 3	26		11	
+Tubules	Distal Tubules	7	Thick Ascending Limb - Distal Straight	27	10		
+Tubules	Distal Tubules	7	Thick Ascending Limb (NOS) - 1	28		12	0
+Tubules	Distal Tubules	7	Thick Ascending Limb (NOS) - 2	29		13	17
+Tubules	Distal Tubules	7	Thick Ascending Limb (NOS) - 3	30			24
+Tubules	Distal Tubules	7	Thick Ascending Limb (NOS) - 4	31			15
+Tubules	Distal Tubules	7	Thick Ascending Limb (NOS) - 5	32			26
+Tubules	Distal Tubules	7	Thick Ascending Limb (NOS) - 6	33			8
+Tubules	Distal Tubules	7	Thick Ascending Loop of Henle	34	19		
+Tubules	Distal Tubules	7	Distal Convoluted Tubule (NOS)	36		14	
+Tubules	Distal Tubules	7	Distal Convolution / Connecting Tubule (NOS) - 1	39	16		7
+Tubules	Distal Tubules	7	Distal Convolution / Connecting Tubule (NOS) - 2	40			21
+Tubules	Distal Tubules	7	Connecting Tubule (NOS)	41		15	
+Tubules	Collecting Duct Principal Cells	8	Collecting System - Principal Cells (NOS) - 1	42	12		2
+Tubules	Collecting Duct Principal Cells	8	Collecting System - Principal Cells (NOS) - 2	43			12
+Tubules	Collecting Duct Principal Cells	8	Collecting System - Principal Cells (NOS) - 3	44			16
+Tubules	Collecting Duct Principal Cells	8	Collecting System - Principal Cells (NOS) - 4	45			23
+Tubules	Collecting Duct Principal Cells	8	Collecting System - Principal Cells Cortical Collecting Duct	47		16	
+Tubules	Collecting Duct Principal Cells	8	Collecting System - Principal Cells Medullary Collecting Duct	48	15	18	
+Tubules	Collecting Duct Principal Cells	8	Collecting System - Principal Cells - Stressed Dissoc Subset	49		17	
+Tubules	Collecting Duct Intercalated Cells	9	Collecting System - Intercalated Cells (NOS) - 1	50	6		6
+Tubules	Collecting Duct Intercalated Cells	9	Collecting System - Intercalated Cells (NOS) - 2	51			9
+Tubules	Collecting Duct Intercalated Cells	9	Collecting System - Intercalated Cells (NOS) - 3	52			29
+Tubules	Collecting Duct Intercalated Cells	9	Collecting System - Intercalated Cells Type A (Cortex)	53		20	
+Tubules	Collecting Duct Intercalated Cells	9	Collecting System - Intercalated Cells Type A (Medulla)	54		19	
+Tubules	Collecting Duct Intercalated Cells	9	Collecting System - Intercalated Cells Type B	55		21	33
+Vessels	Endothelial Arteries	10	Endothelial Arteriole (NOS)	60	20		
+Vessels	Peritubular Capillaries	11	Peritubular Capillaries	65	9		
+Vessels	Peritubular Capillaries	11	Descending Vasa Recta	66		24	
+Vessels	Peritubular Capillaries	11	Aescending Vasa Recta	67		23	
+Vessels	Endothelial Lymphatic Cells	12	Lymphatic Cells	68			18
+Vessels	Vascular Smooth Muscle Cells	13	Vascular Smooth Muscle Cells and Pericytes (NOS)	69		27	
+Vessels	Vascular Smooth Muscle Cells	13	Vascular Smooth Muscle Cells / Mesangial Cells (NOS)	70	18		
+Interstitium	Interstial Fibroblasts	14	Interstial Fibroblasts	73	29		
+Interstitium	Macrophages	15	Macrophages	76	8	30	
+Interstitium	Natural Killer Cells	16	Natural Killer Cells	78	17		
+Interstitium	Monocytes	17	Monocytes	79	11		
+Interstitium	Effector Memory T-cells	18	Effector Memory T-cells	80	0		
+Interstitium	Cytotoxic T-cells	19	Cytotoxic T-cells (CD8+)	82	5		
+Interstitium	Natural Killer T-cells	20	Natural Killer T-cells	83	22		
+Interstitium	Activated T-cells	21	Activated T-cells	84	21		
+Interstitium	Memory T-cells	22	Memory T-cells	85	28		
+Interstitium	ISG-activated T-cells	23	ISG-activated T-cells	86	27		
+Interstitium	B-cells	24	B-cells	87	24		36
