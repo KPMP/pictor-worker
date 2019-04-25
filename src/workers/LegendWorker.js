@@ -10,7 +10,9 @@ const SCRNA_SEQ = 'SCRNA-SEQ',
     ROLLUP_ID = 'ROLLUP_ID',
     ROLLUP_TYPE = 'ROLLUP_TYPE',
     CLUSTER_TYPE = 'CLUSTER_TYPE',
-    CLUSTER_ID = 'CLUSTER_ID';
+    CLUSTER_ID = 'CLUSTER_ID',
+    CLUSTER_ABBR = 'CLUSTER_ABBR',
+    IS_EXCLUDED = 'IS_EXCLUDED';
 
 class LegendWorker {
     constructor() {
@@ -99,6 +101,9 @@ class LegendWorker {
                     worker.result.clusterMapIndexes[SCRNA_SEQ] = row.indexOf(SCRNA_SEQ);
                     worker.result.clusterMapIndexes[SNDROP_SEQ] = row.indexOf(SNDROP_SEQ);
                     worker.result.clusterMapIndexes[MDSCRNA_SEQ] = row.indexOf(MDSCRNA_SEQ);
+                    worker.result.clusterMapIndexes[MDSCRNA_SEQ] = row.indexOf(MDSCRNA_SEQ);
+                    worker.result.clusterMapIndexes.CLUSTER_ABBR = row.indexOf(CLUSTER_ABBR);
+                    worker.result.clusterMapIndexes.IS_EXCLUDED = row.indexOf(IS_EXCLUDED);
 
                     log.debug(worker.result.clusterMapIndexes);
 
@@ -114,7 +119,9 @@ class LegendWorker {
                     scrnaSeqId = row[indexes[SCRNA_SEQ]],
                     mdscrnaSeqId = row[indexes[MDSCRNA_SEQ]],
                     sndropSeqId = row[indexes[SNDROP_SEQ]],
-                    clusterRow = {structure, rollupType, rollupId, clusterType, clusterId};
+                    clusterAbbr = row[indexes[CLUSTER_ABBR]],
+                    isExcluded = row[indexes[IS_EXCLUDED]],
+                    clusterRow = {structure, rollupType, rollupId, clusterType, clusterId, clusterAbbr, isExcluded};
 
                 if(!clusterId) {
                     return;
