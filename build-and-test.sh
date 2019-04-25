@@ -5,5 +5,7 @@
 #### Mostly this script is helpful for interactively debugging while changing code and updating test logic.
 
 rm -rf ./tests/data/dst
-node ./index.js --mungeConfig=./tests/test.env
-node ./tests/test-runner.js --mungeConfig=./tests/test.env
+node ./index.js --mungeConfig=./tests/UCSD-WU_test.env
+node ./index.js --mungeConfig=./tests/UCSF_test.env
+node ./index.js --mungeConfig=./tests/UMich_test.env
+node ./tests/test-runner.js --mungeConfig=./tests/UMich_test.env

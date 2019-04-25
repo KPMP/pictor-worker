@@ -29,25 +29,31 @@ class ViolinPlotWorker {
             barcodeMap: {},
             readCountHeader: [],
             barcodeCt: 0,
-            readCountRowCt: 0,
+            readCountRowCts: [],
             unmatchedBarcodes: [],
-            unmappedToRollupBarcodes: []
+            unmappedToRollupBarcodes: {}
         }
 
         return this;
     }
 
     parseBarcodeToCellMap(inPath) {
+        const worker = ViolinPlotWorker.getInstance();
         return files.streamRead("parseBarcodeToCellMap", inPath, (line) => {
-            const worker = ViolinPlotWorker.getInstance(),
-                row = line.split(env.IN_DELIM),
+            const row = line.split(env.IN_DELIM),
                 cell = files.sanitize(row[env.BARCODE_FILE_CELL_NAME_IDX]),
                 cluster = files.sanitize(row[env.BARCODE_FILE_CLUSTER_ID_IDX]);
 
-            if (row && row.length) {
+            if (cell && cluster && !isNaN(Number(cluster))) {
                 worker.result.barcodeMap[cell] = cluster;
-                worker.result.barcodeCt++;
             }
+
+            else {
+                log.debug("!!! Barcode map for cell/cluster invalid, skipping: " + cell + ',' + cluster);
+            }
+
+        }).then(() => {
+            worker.result.barcodeCt = Object.keys(worker.result.barcodeMap).length;
         });
     }
 
@@ -95,9 +101,9 @@ class ViolinPlotWorker {
                     rollupId = legendWorker.getRollupId(clusterId);
 
                 if(rollupId === -1) {
-                    if (worker.result.unmappedToRollupBarcodes.indexOf(cell) === -1) {
+                    if (worker.result.unmappedToRollupBarcodes.hasOwnProperty(cell) === false) {
                         log.debug('!!! Warning: No rollup found for gene/cell ' + gene + '/' + cell + '; skipping');
-                        worker.result.unmappedToRollupBarcodes.push(cell);
+                        worker.result.unmappedToRollupBarcodes[cell] = [cell, datasetName, datasetClusterId];
                     }
                     return;
                 }
@@ -114,7 +120,7 @@ class ViolinPlotWorker {
             if(!skip && gene && gene.length > 0) {
 
                 log.info('... Parsed ' + readCountCt + ' reads for ' + gene + '; max: ' + maxReadCount);
-                worker.result.readCountRowCt++;
+                worker.result.readCountRowCts.push(outputRows.length);
 
                 worker.writeViolinPlotFile(
                     outputRows,
@@ -150,12 +156,21 @@ class ViolinPlotWorker {
     logResult() {
         const worker = ViolinPlotWorker.getInstance();
         return new Promise((resolve, reject) => {
+
+            const barcodes = worker.result.barcodeCt,
+                genes = worker.result.readCountRowCts.length,
+                unmatched = worker.result.unmatchedBarcodes.length,
+                unmapped = Object.keys(worker.result.unmappedToRollupBarcodes).length,
+                writtenRows = worker.result.readCountRowCts[0];
+
             log.debug('... logResult');
-            log.info('Barcode ct: ' + worker.result.barcodeCt);
-            log.info('Read count row ct: ' + worker.result.readCountRowCt);
-            log.info('Runtime: ' + ((Date.now() - this.result.startTime) / 1000) + "s");
-            log.info('Unmatched barcode ct: ' + this.result.unmatchedBarcodes.length);
-            log.info('Barcodes unmapped to a rollup ct: ' + this.result.unmappedToRollupBarcodes.length);
+            log.info('Runtime                          : ' + ((Date.now() - this.result.startTime) / 1000) + "s");
+            log.info('Barcodes                         : ' + barcodes);
+            log.info('Genes                            : ' + genes);
+            log.info('Unmatched barcodes               : ' + unmatched);
+            log.info('Unmapped barcodes                : ' + unmapped);
+            log.info('Barcodes - unmatched - unmapped  : ' + (barcodes - unmatched - unmapped));
+            log.info('Written rows for first gene      : ' + writtenRows);
 
             files.getStreamWriter(env.LOG_DIR + env.PATH_DELIM + env.LOG_UNMATCHED_BARCODE_FILE, (os) => {
                 os.write(env.LOG_UNMATCHED_BARCODE_HEADER + env.ROW_DELIM);
@@ -164,7 +179,7 @@ class ViolinPlotWorker {
 
             files.getStreamWriter(env.LOG_DIR + env.PATH_DELIM + env.LOG_UNMAPPED_ROLLUP_BARCODE_FILE, (os) => {
                 os.write(env.LOG_UNMAPPED_ROLLUP_BARCODE_HEADER + env.ROW_DELIM);
-                os.write(worker.result.unmappedToRollupBarcodes.join(env.ROW_DELIM));
+                os.write(Object.values(worker.result.unmappedToRollupBarcodes).join(env.ROW_DELIM));
             });
 
             resolve();

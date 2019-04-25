@@ -26,14 +26,14 @@ class DownloadFileWorker {
                     os.write(env.DOWNLOAD_FILE_HEADER + env.ROW_DELIM);
                 }
 
-                //Download file column order:
-                //dataset,barcode,cluster_id,rollup_id,rollup_type,gene,normalized_expression_value
+                //Download file column order (cluster_id had been column #3, removed):
+                //dataset,barcode,rollup_id,rollup_type,gene,normalized_expression_value
 
                 //Gene row column order:
                 //cell, gene, clusterId, rollupId, readCount
 
                 _.forEach(rows, (row) => {
-                    os.write([env.DATASET_NAME, row[0], row[2],
+                    os.write([env.DATASET_NAME, row[0],
                         legendWorker.getRollupId(row[2]),
                         legendWorker.getRollupType(row[2]),
                         row[1], row[4]].join(env.OUT_DELIM) + env.ROW_DELIM);
