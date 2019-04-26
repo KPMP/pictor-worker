@@ -77,7 +77,7 @@ class GeneListWorker {
     writeGenes() {
         const worker = GeneListWorker.getInstance();
         const outPath = env.DST_DIR + env.PATH_DELIM + env.GENE_LIST_FILENAME;
-        log.info('+++ GeneListWorker.writeGenes');
+        log.debug('+++ GeneListWorker.writeGenes');
 
         if(env.DEBUGGING) {
             log.debug(worker.result);

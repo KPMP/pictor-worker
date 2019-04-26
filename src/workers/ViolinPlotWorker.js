@@ -58,6 +58,10 @@ class ViolinPlotWorker {
     }
 
     processReadCountTable(datasetName, inPath, outPath) {
+        if(env.GENE_FILTER) {
+            log.info(new Date().toISOString() + ' ---------- PROCESSING FILTER ' + env.GENE_FILTER);
+        }
+
         return files.streamRead("processReadCountTable", inPath, (line) => {
             const worker = ViolinPlotWorker.getInstance(),
                 legendWorker = LegendWorker.getInstance(),
@@ -76,12 +80,18 @@ class ViolinPlotWorker {
             _.forEach(inputCols, (col, i) => {
                 if(i === 0) {
                     gene = files.sanitize(col);
-                    skip = env.PARSE_GENES && env.PARSE_GENES.indexOf(gene) === -1;
+
+                    if((env.PARSE_GENES && env.PARSE_GENES.indexOf(gene) === -1) ||
+                        (env.GENE_FILTER && gene && gene.indexOf(env.GENE_FILTER) !== 0)) {
+                        skip = true;
+                    }
+
                     return;
                 }
 
                 if(skip || !gene || !files.sanitize(worker.result.readCountHeader[i])) {
-                    return;
+                    log.debug('!!! Gene failed parse/filter: ' + gene + '; skipping');
+                    return false;
                 }
 
                 let cellHeaderIndex = i - 1,

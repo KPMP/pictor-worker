@@ -69,3 +69,5 @@ module.exports.CLUSTER_MAP_HEADER = process.env.CLUSTER_MAP_HEADER || 'structure
 module.exports.DOWNLOAD_FILENAME = process.env.DOWNLOAD_FILENAME || '_expression_';
 module.exports.DOWNLOAD_MOMENT_FORMAT = process.env.DOWNLOAD_MOMENT_FORMAT || 'YYYYMMDD';
 module.exports.DOWNLOAD_FILE_HEADER = process.env.DOWNLOAD_FILE_HEADER || 'dataset,barcode,cluster_id,cluster_name,gene,normalized_expression_value';
+module.exports.GENE_FILTER = process.env.GENE_FILTER || false;
+module.exports.HARD_LOGGING = process.env.HARD_LOGGING === "true";
